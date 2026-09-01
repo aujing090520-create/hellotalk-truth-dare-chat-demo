@@ -1,0 +1,33 @@
+.voice-message {
+  display: flex;
+  align-items: center;
+  width: 156px;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 0 15px;
+  border-radius: 25px;
+  color: #7047f5;
+  background: #efecff;
+}
+
+.message-row.peer .voice-message {
+  background: #f2f2f2;
+}
+
+.voice-play {
+  display: grid;
+  width: 22px;
+  height: 28px;
+  place-items: center;
+}
+
+.voice-play .icon {
+  width: 21px;
+  height: 21px;
+}
+
+.voice-time {
+  margin-left: auto;
+  font-size: 16px;
+  line-height: 1;
+}

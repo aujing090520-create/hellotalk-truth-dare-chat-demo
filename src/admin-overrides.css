@@ -1,0 +1,46 @@
+.side-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  border-radius: 8px;
+  background: #1f70ce;
+  color: #fff;
+  font-weight: 700;
+}
+
+.side-current span {
+  color: #fff;
+}
+
+.filter-actions {
+  align-items: center;
+}
+
+.filter-actions small {
+  color: #8c98aa;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.fixed-value {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 37px;
+  padding: 0 11px;
+  border-radius: 7px;
+  background: #f4f7fb;
+  color: #516078;
+}
+
+.fixed-value b {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.fixed-value small {
+  margin-top: 1px;
+  font-size: 10px;
+  color: #8a97aa;
+}
