@@ -52,6 +52,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-player strong { font-size: 12px; }
 .game-player small { color: #98939e; font-size: 10px; }
 .game-player.is-ready .avatar { box-shadow: 0 0 0 3px #7047f5, 0 0 0 6px #eeeaff; }
+.game-player.is-exited .avatar { filter: grayscale(.35); opacity: .7; }
 .game-player-link { color: #c1b9d1; font-size: 20px; }
 .lobby-state { display: flex; flex-direction: column; gap: 4px; margin: 2px 0 20px; color: #6f687a; font-size: 12px; }
 .lobby-state small { color: #aaa3b0; font-size: 10px; }
@@ -73,6 +74,9 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-history-item p { margin: 4px 0; color: #45404c; font-size: 11px; line-height: 15px; }
 .game-history-item span { color: #6f53d5; font-size: 11px; }
 .ended-game-sheet { min-height: 0; }
+.ended-sync-note { color: #7657dd !important; font-weight: 600; }
+.ended-game-sheet .game-players { margin: 8px 0 11px; }
+.ended-game-sheet .game-player .avatar { width: 42px; height: 42px; font-size: 15px; }
 .ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
 .game-float { position: absolute; right: 10px; bottom: 76px; z-index: 7; width: 150px; height: 78px; overflow: hidden; border: 1px solid #e3dff0; border-radius: 15px; background: rgba(255,255,255,.98); box-shadow: 0 10px 24px rgba(46, 38, 67, .2); }
 .game-float-close { position: absolute; top: 5px; right: 5px; z-index: 2; width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; color: #8f8998; background: #f5f3f8; }
