@@ -30,7 +30,10 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 
 /* 双方同步游戏弹窗：游戏过程留在弹窗内，聊天区只保留普通聊天。 */
 .game-scrim { background: rgba(26, 21, 42, .56); }
-.game-sheet { min-height: 505px; padding: 38px 20px 19px; text-align: center; overflow-y: auto; }
+.game-sheet { min-height: 0; max-height: calc(100% - 12px); padding: 38px 20px 19px; text-align: center; overflow-y: auto; }
+.game-sheet-actions { position: absolute; top: 15px; right: 14px; z-index: 2; }
+.sheet-minimize { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: #777080; background: #f5f3fa; }
+.sheet-minimize .icon { width: 17px; height: 17px; stroke-width: 2.2; }
 .game-sheet h2 { margin: 7px 0 0; font-size: 20px; }
 .game-sheet > p { margin: 8px 0 16px; color: #77727d; font-size: 13px; line-height: 19px; }
 .game-modal-icon { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto 9px; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #7449f0, #ed70ba); font-size: 25px; font-weight: 800; box-shadow: 0 8px 18px rgba(112, 71, 245, .2); }
@@ -57,7 +60,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .choice-game-sheet .game-players { margin: 15px 0 5px; transform: scale(.78); transform-origin: top center; height: 69px; }
 .choice-game-sheet > p { margin: -3px 0 12px; }
 .choice-game-sheet .choice-grid { margin-top: 7px; }
-.prompt-game-sheet { min-height: 575px; }
+.prompt-game-sheet { min-height: 0; }
 .prompt-game-sheet .game-players { margin-top: 13px; transform: scale(.72); transform-origin: top center; height: 63px; }
 .game-question-meta { margin-top: -3px; color: #7456dd; font-size: 11px; font-weight: 700; }
 .prompt-game-sheet h2 { min-height: 57px; margin: 8px 0 3px; font-size: 18px; line-height: 26px; }
@@ -69,5 +72,15 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-history-item b { color: #7657dd; font-size: 10px; }
 .game-history-item p { margin: 4px 0; color: #45404c; font-size: 11px; line-height: 15px; }
 .game-history-item span { color: #6f53d5; font-size: 11px; }
-.ended-game-sheet { min-height: 560px; }
+.ended-game-sheet { min-height: 0; }
 .ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
+.game-float { position: absolute; right: 10px; bottom: 76px; z-index: 7; width: 150px; height: 78px; overflow: hidden; border: 1px solid #e3dff0; border-radius: 15px; background: rgba(255,255,255,.98); box-shadow: 0 10px 24px rgba(46, 38, 67, .2); }
+.game-float-close { position: absolute; top: 5px; right: 5px; z-index: 2; width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; color: #8f8998; background: #f5f3f8; }
+.game-float-close .icon { width: 12px; height: 12px; stroke-width: 2.1; }
+.game-float-content { width: 100%; height: 100%; display: grid; grid-template-columns: 35px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 8px; padding: 12px 10px 8px; text-align: left; }
+.game-float-icon { grid-row: 1 / 4; width: 35px; height: 35px; display: grid; place-items: center; align-self: center; border-radius: 10px; color: #fff; background: linear-gradient(135deg, #7449f0, #ed70ba); font-size: 17px; font-weight: 800; }
+.game-float-content strong { min-width: 0; overflow: hidden; color: #332d3e; font-size: 10px; line-height: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.game-float-status { min-width: 0; overflow: hidden; color: #7047f5; font-size: 10px; line-height: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.game-float-status i { display: inline-block; width: 5px; height: 5px; margin: 0 4px 1px 0; border-radius: 50%; background: currentColor; }
+.game-float-content small { color: #9b94a4; font-size: 9px; line-height: 13px; }
+.game-float.is-ended .game-float-status { color: #9a8193; }
