@@ -27,3 +27,47 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .emoji-composer { margin: 0 -20px; border-top: 1px solid #eeeeef; border-radius: 0; background: #fff; text-align: left; }.emoji-status { min-height: 34px; padding: 8px 20px 5px; }.emoji-status small { color: #7652e9; font-size: 12px; font-weight: 600; }.emoji-grid { grid-template-columns: repeat(8, 1fr); gap: 7px 5px; max-height: 268px; padding: 8px 17px 12px; overflow-y: auto; overscroll-behavior: contain; }.emoji-option { height: 31px; display: grid; place-items: center; border: 1px solid transparent; border-radius: 8px; background: transparent; font-size: 23px; line-height: 1; }.prompt-sheet:has(.emoji-composer) { min-height: 536px; }.prompt-sheet:has(.emoji-composer) .prompt-actions { margin: 10px 0 5px; padding: 0 20px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 @media (max-width: 850px) { .demo { padding: 0 10px 22px; }.demo-header, .role-labels, .phones { margin-left: 0; }.demo-header { padding-top: 12px; }.demo-header p, .demo-header label { display: none; }.phones { gap: 18px; }.review-panel { display: none; } }
+
+/* 双方同步游戏弹窗：游戏过程留在弹窗内，聊天区只保留普通聊天。 */
+.game-scrim { background: rgba(26, 21, 42, .56); }
+.game-sheet { min-height: 505px; padding: 38px 20px 19px; text-align: center; overflow-y: auto; }
+.game-sheet h2 { margin: 7px 0 0; font-size: 20px; }
+.game-sheet > p { margin: 8px 0 16px; color: #77727d; font-size: 13px; line-height: 19px; }
+.game-modal-icon { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto 9px; border-radius: 16px; color: #fff; background: linear-gradient(135deg, #7449f0, #ed70ba); font-size: 25px; font-weight: 800; box-shadow: 0 8px 18px rgba(112, 71, 245, .2); }
+.game-modal-note { display: block; margin: 17px 0 16px; color: #98939e; font-size: 11px; }
+.invite-preview { display: flex; align-items: center; justify-content: center; gap: 13px; margin: 16px 0 8px; }
+.invite-preview .avatar { width: 49px; height: 49px; font-size: 17px; box-shadow: 0 0 0 3px #f0edff; }
+.invite-preview > span:not(.avatar) { color: #c1b9d1; font-size: 22px; }
+.avatar.placeholder { display: grid; place-items: center; color: #9a91aa; background: #f3f1f7; font-size: 20px; }
+.game-modal-actions { display: flex; gap: 9px; margin-top: 10px; }
+.game-modal-actions button { flex: 1; height: 42px; border-radius: 21px; }
+.game-waiting { margin: 20px 0; color: #8c8793; font-size: 12px; }
+.game-waiting.large { min-height: 88px; display: grid; place-items: center; margin: 18px 0 4px; border-radius: 13px; background: #f8f6ff; color: #7b7486; }
+.game-players { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 20px 0 18px; }
+.game-player { min-width: 83px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.game-player .avatar { width: 54px; height: 54px; font-size: 18px; box-shadow: 0 0 0 3px #f0edf8; }
+.game-player strong { font-size: 12px; }
+.game-player small { color: #98939e; font-size: 10px; }
+.game-player.is-ready .avatar { box-shadow: 0 0 0 3px #7047f5, 0 0 0 6px #eeeaff; }
+.game-player-link { color: #c1b9d1; font-size: 20px; }
+.lobby-state { display: flex; flex-direction: column; gap: 4px; margin: 2px 0 20px; color: #6f687a; font-size: 12px; }
+.lobby-state small { color: #aaa3b0; font-size: 10px; }
+.game-modal-head { display: flex; flex-direction: column; gap: 2px; }
+.game-modal-head strong { font-size: 18px; }
+.choice-game-sheet .game-players { margin: 15px 0 5px; transform: scale(.78); transform-origin: top center; height: 69px; }
+.choice-game-sheet > p { margin: -3px 0 12px; }
+.choice-game-sheet .choice-grid { margin-top: 7px; }
+.prompt-game-sheet { min-height: 575px; }
+.prompt-game-sheet .game-players { margin-top: 13px; transform: scale(.72); transform-origin: top center; height: 63px; }
+.game-question-meta { margin-top: -3px; color: #7456dd; font-size: 11px; font-weight: 700; }
+.prompt-game-sheet h2 { min-height: 57px; margin: 8px 0 3px; font-size: 18px; line-height: 26px; }
+.prompt-game-sheet > p { margin: 0 0 15px; }
+.answer-observer { display: grid; place-items: center; min-height: 73px; padding: 0 10px; border-radius: 11px; background: #f8f6ff; color: #8e8798; font-size: 12px; }
+.game-history { margin: 13px 0 13px; padding: 10px 11px; border-top: 1px solid #eeeaf5; text-align: left; }
+.game-history-title { display: block; margin-bottom: 7px; color: #8b8395; font-size: 10px; }
+.game-history-item { margin: 7px 0; padding: 8px 9px; border-radius: 10px; background: #faf9fd; }
+.game-history-item b { color: #7657dd; font-size: 10px; }
+.game-history-item p { margin: 4px 0; color: #45404c; font-size: 11px; line-height: 15px; }
+.game-history-item span { color: #6f53d5; font-size: 11px; }
+.ended-game-sheet { min-height: 560px; }
+.ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
