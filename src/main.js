@@ -154,7 +154,7 @@ function promptAnswerArea(role) {
   const ready = responseType === 'emoji_3' ? state.emojiSelections[role].length === 3 : state.answerDrafts[role].trim();
   const actions = recording ? '' : responseType === 'voice'
     ? `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button></div>`
-    : `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button><button class="purple" data-action="submit" data-owner="${role}" ${ready ? '' : 'disabled'}>完成</button></div>`;
+    : `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button><button class="purple" data-action="submit" data-owner="${role}" ${ready ? '' : 'disabled'}>完成并继续</button></div>`;
   return `<div id="answer-area" data-answer-area-role="${role}">${answerComposer(role)}${actions}</div>`;
 }
 

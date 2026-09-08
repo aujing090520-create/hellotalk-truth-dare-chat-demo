@@ -66,7 +66,7 @@ export const promptBank = {
 };
 
 export const responseComponentSpec = {
-  text: { component: '文字输入框', submit: '完成', rules: '真心话与文字大冒险均必填；仅文字作答' },
+  text: { component: '文字输入框', submit: '完成并继续', rules: '真心话与文字大冒险均必填；仅文字作答' },
   voice: { component: '原地短语音录制条', submit: '发送', rules: '最长 60 秒；不提供文字替代' },
-  emoji_3: { component: '直接展示全部表情的 8 列网格', submit: '完成', rules: '必须选满 3 个' },
+  emoji_3: { component: '直接展示全部表情的 8 列网格', submit: '完成并继续', rules: '必须选满 3 个' },
 };
