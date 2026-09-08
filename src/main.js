@@ -220,6 +220,20 @@ function gameHistory(role) {
   }).join('')}</section>`;
 }
 
+function handoffSheet(role, close, sheetActions) {
+  const item = state.roundHistory[state.roundHistory.length - 1];
+  if (!item) return '';
+  const recipient = other(item.player);
+  const recipientHere = role === recipient;
+  const reaction = item.reaction;
+  const reactionContent = reaction
+    ? `<span class="game-reaction-result">${name(reaction.from)} 送来 ${reaction.emoji}</span>`
+    : recipientHere
+      ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((emoji) => `<button data-action="react-round" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" data-reaction="${emoji}" aria-label="发送回应 ${emoji}">${emoji}</button>`).join('')}</div></div>`
+      : `<span class="handoff-reaction-hint">等待对方回应（可选）</span>`;
+  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p><div class="handoff-answer-value">${item.answer}</div><div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+}
+
 function gameDock(role) {
   if (state.game === 'idle' || state.game === 'declined' || state.game === 'invited' || state.gameSheetOpen[role]) return '';
   return state.gameSheetMinimized[role] ? gameFloating(role) : '';
@@ -263,6 +277,7 @@ function gameSheet(role) {
     const activeHere = state.active === role;
     return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.active)} 选择` : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选择真心话或大冒险，系统会随机抽题</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${gameHistory(role)}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
+  if (state.gameSheet === 'handoff') return handoffSheet(role, close, sheetActions);
   if (state.gameSheet === 'prompt') {
     const prompt = currentPrompt();
     const activeHere = state.currentChallenge?.player === role;
@@ -341,7 +356,7 @@ function complete(answer, declined = false) {
   state.type = null;
   state.currentChallenge = null;
   clearVoice();
-  state.gameSheet = 'choice';
+  state.gameSheet = 'handoff';
   state.gameSheetOpen = { me: true, them: true };
   state.gameSheetMinimized = { me: false, them: false };
 }
@@ -411,6 +426,7 @@ app.addEventListener('click', (event) => {
   if (action === 'minimize-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = true; }
   if (action === 'close-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = false; }
   if (action === 'open-choice') { state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+  if (action === 'continue-after-handoff' && state.gameSheet === 'handoff' && owner === state.active) { state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'open-prompt') { state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'pick-truth' || action === 'pick-dare') { state.type = action === 'pick-truth' ? 'truth' : 'dare'; const prompt = drawPrompt(state.type); state.currentChallenge = { player: state.active, type: state.type, ...prompt }; state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'select-emoji') { const emoji = event.target.closest('[data-emoji]')?.dataset.emoji; const selected = state.emojiSelections[owner]; const index = selected.indexOf(emoji); if (index >= 0) selected.splice(index, 1); else if (selected.length < 3) selected.push(emoji); updatePromptAnswerArea(); return; }

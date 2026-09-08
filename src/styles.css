@@ -81,6 +81,17 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-reaction-picker > div { display: flex; gap: 4px; }
 .game-reaction-picker button { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #e9e5f2; border-radius: 50%; background: #fff; font-size: 14px; }
 .game-reaction-result { color: #7657dd !important; font-size: 10px !important; }
+.handoff-game-sheet { min-height: 480px; padding-bottom: 82px; }
+.handoff-game-sheet .game-modal-head { margin-bottom: 7px; }
+.handoff-state { max-width: 280px; margin: 0 auto 14px; color: #77727d; font-size: 12px; line-height: 19px; }
+.handoff-answer-card { margin: 0; padding: 14px 13px 12px; border: 1px solid #ece8f4; border-radius: 13px; background: #faf9fd; text-align: left; }
+.handoff-answer-card .game-question-meta { display: inline-flex; margin: 0 0 9px; }
+.handoff-answer-card > p { margin: 0 0 8px; color: #45404c; font-size: 13px; line-height: 19px; }
+.handoff-answer-value { padding: 10px 11px; border-radius: 10px; color: #282532; background: #fff; font-size: 14px; line-height: 20px; }
+.handoff-answer-card .game-reaction-row { margin-top: 10px; }
+.handoff-reaction-hint { color: #958da0 !important; font-size: 10px !important; }
+.handoff-continue { position: absolute; right: 26px; bottom: 53px; left: 26px; width: auto; height: 42px; border-radius: 21px; }
+.handoff-waiting { position: absolute; right: 26px; bottom: 57px; left: 26px; margin: 0; text-align: center; }
 .ended-game-sheet { height: 480px; min-height: 480px; }
 .ended-sync-note { color: #7657dd !important; font-weight: 600; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
