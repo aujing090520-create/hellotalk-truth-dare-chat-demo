@@ -111,6 +111,7 @@ function icon(name) {
     trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4m-3 0h6"/>',
     minimize: '<path d="M5 15h14"/>',
+    history: '<path d="M6 5h12M6 12h12M6 19h12"/>',
   };
   return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${paths[name]}</svg>`;
 }
@@ -271,15 +272,17 @@ function handoffSheet(role, close, sheetActions) {
   const recipient = other(item.player);
   const recipientHere = role === recipient;
   const reaction = item.reaction;
+  const history = state.historyOpen[role] ? gameHistory(role) : '';
   const reactionContent = reaction
     ? `<span class="game-reaction-result">${name(reaction.from)} 送来 ${reaction.emoji}</span>`
     : recipientHere
       ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((choice) => `<button class="reaction-${choice.tone}" data-action="react-round" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" data-reaction="${choice.emoji}" aria-label="发送回应：${choice.label}">${choice.emoji}</button>`).join('')}</div></div>`
       : `<span class="handoff-reaction-hint">等待对方回应（可选）</span>`;
+  const effectKind = state.reactionEffect?.emoji === '🥚' ? 'egg' : state.reactionEffect?.emoji === '🩴' ? 'slipper' : 'positive';
   const effect = state.reactionEffect?.owner === role
-    ? `<div class="reaction-effect-overlay" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
+    ? `<div class="reaction-effect-overlay reaction-effect-${effectKind}" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
     : '';
-  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p>${answerValue(item, role)}<div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p>${answerValue(item, role)}<div class="game-reaction-row">${reactionContent}</div></article>${history}${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
 }
 
 function gameDock(role) {
@@ -289,8 +292,8 @@ function gameDock(role) {
 
 function historyToggle(role) {
   if (!state.completedRounds) return '';
-  const label = state.historyOpen[role] ? '收起记录' : `记录（${state.completedRounds}）`;
-  return `<button class="history-toggle history-inline" data-action="toggle-history" data-owner="${role}">${label}</button>`;
+  const label = state.historyOpen[role] ? '收起记录' : `查看记录（${state.completedRounds}）`;
+  return `<button class="sheet-history ${state.historyOpen[role] ? 'is-open' : ''}" data-action="toggle-history" data-owner="${role}" aria-label="${label}">${icon('history')}<b>${state.completedRounds}</b></button>`;
 }
 
 function gameFloating(role) {
@@ -326,7 +329,7 @@ function gameSheet(role) {
   if (!state.gameSheet || !state.gameSheetOpen[role]) return '';
   const close = `<button class="sheet-close" data-action="exit-game" data-owner="${role}" aria-label="退出游戏">${icon('close')}</button>`;
   const minimize = `<button class="sheet-minimize" data-action="minimize-game-sheet" data-owner="${role}" aria-label="最小化游戏">${icon('minimize')}</button>`;
-  const sheetActions = `<div class="game-sheet-actions">${minimize}</div>`;
+  const sheetActions = `<div class="game-sheet-actions">${state.completedRounds ? historyToggle(role) : ''}${minimize}</div>`;
   if (state.gameSheet === 'invite') {
     const recipient = role === 'them';
     if (state.game === 'declined') return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>暂不开始</h2><p>${name('them')}暂时没有加入这局游戏</p><div class="invite-preview">${avatar('me')}<span>×</span>${avatar('them')}</div><button class="end-game" data-action="exit-game" data-owner="${role}">退出游戏</button></section>`;
@@ -335,14 +338,14 @@ function gameSheet(role) {
   if (state.gameSheet === 'choice') {
     const activeHere = state.active === role;
     const history = state.historyOpen[role] ? gameHistory(role) : '';
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.active)} 选择` : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选择真心话或大冒险，系统会随机抽题</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${historyToggle(role)}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.active)} 选择` : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选择真心话或大冒险，系统会随机抽题</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'handoff') return handoffSheet(role, close, sheetActions);
   if (state.gameSheet === 'prompt') {
     const prompt = currentPrompt();
     const activeHere = state.currentChallenge?.player === role;
     const history = state.historyOpen[role] ? gameHistory(role) : '';
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.currentChallenge.player)} 完成` : `等待 ${name(state.currentChallenge.player)} 完成`}</strong></div><div class="game-question-meta">${name(state.currentChallenge.player)}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `完成后自动交给 ${name(other(role))}` : `完成后回合交给你`}</p>${promptAnswerArea(role)}${historyToggle(role)}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.currentChallenge.player)} 完成` : `等待 ${name(state.currentChallenge.player)} 完成`}</strong></div><div class="game-question-meta">${name(state.currentChallenge.player)}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `完成后自动交给 ${name(other(role))}` : `完成后回合交给你`}</p>${promptAnswerArea(role)}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'ended') {
     const endedNote = state.exitBy && state.exitBy !== role
