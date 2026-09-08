@@ -383,7 +383,18 @@ app.addEventListener('click', (event) => {
   if (action === 'open-mini') { state.toolsOwner = null; state.sheet = { type: 'mini', owner }; }
   if (action === 'open-intro') state.sheet = { type: 'intro', owner };
   if (action === 'close-sheet') state.sheet = null;
-  if (action === 'send-invite') { state.sheet = null; state.messages.push({ kind: 'game-invite', sender: owner || 'me' }); state.game = 'invited'; state.exitBy = null; state.entered = { me: true, them: false }; state.ready = { me: false, them: false }; state.gameSheet = 'invite'; state.gameSheetOpen = { me: false, them: false }; state.gameSheetMinimized = { me: false, them: false }; }
+  if (action === 'send-invite') {
+    const inviter = owner || 'me';
+    state.sheet = null;
+    state.messages.push({ kind: 'game-invite', sender: inviter });
+    state.game = 'invited';
+    state.exitBy = null;
+    state.entered = { me: true, them: false };
+    state.ready = { me: false, them: false };
+    state.gameSheet = 'invite';
+    state.gameSheetOpen = { me: inviter === 'me', them: inviter === 'them' };
+    state.gameSheetMinimized = { me: false, them: false };
+  }
   if (action === 'accept') { state.entered = { me: true, them: true }; startGame(); }
   if (action === 'decline') { state.game = 'declined'; state.gameSheet = 'invite'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'open-game-sheet' || action === 'restore-game-sheet') { state.gameSheetOpen[owner] = true; state.gameSheetMinimized[owner] = false; }
