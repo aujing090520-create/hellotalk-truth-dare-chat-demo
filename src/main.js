@@ -246,9 +246,12 @@ function gameDock(role) {
 
 function gameFloating(role) {
   const ended = state.game === 'ended';
-  return `<section class="game-float ${ended ? 'is-ended' : ''}" aria-label="${ended ? '查看游戏结果' : '继续游戏'}">
-    <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="${ended ? '查看游戏结果' : '恢复游戏弹窗'}">
-      <span class="game-float-icon">${icon('gamepad')}</span><i class="game-float-dot" aria-hidden="true"></i>
+  const waiting = state.game === 'playing' && state.active && state.active !== role;
+  const status = waiting ? 'waiting' : ended ? 'ended' : 'active';
+  const label = ended ? '查看游戏结果' : waiting ? '等待对方操作' : '恢复游戏弹窗';
+  return `<section class="game-float ${waiting ? 'is-waiting' : ''} ${ended ? 'is-ended' : ''}" aria-label="${label}">
+    <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="${label}">
+      <span class="game-float-icon">${icon('gamepad')}</span><i class="game-float-status is-${status}" aria-hidden="true"></i>
     </button>
   </section>`;
 }
