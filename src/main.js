@@ -82,6 +82,7 @@ function icon(name) {
     pause: '<path d="M8 5v14M16 5v14"/>',
     play: '<path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="none"/>',
     send: '<path d="M21 3 10.5 13.5M21 3l-6.7 18-3.8-7.5L3 9.7z"/>',
+    gamepad: '<path d="M7.2 7.3h9.6c2.1 0 3.7 1.6 4.1 3.6l.9 4.4c.4 2-1.9 3.4-3.2 1.8l-1.8-2.1H7.2l-1.8 2.1c-1.3 1.6-3.6.2-3.2-1.8l.9-4.4c.4-2 2-3.6 4.1-3.6Z" fill="currentColor" stroke="none"/><path d="M8 10.5v4m-2-2h4M16.5 12.3h.01M19 14h.01" stroke="currentColor" stroke-width="1.8"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4m-3 0h6"/>',
     minimize: '<path d="M5 15h14"/>',
@@ -211,36 +212,14 @@ function gameHistory() {
 
 function gameDock(role) {
   if (state.game === 'idle' || state.game === 'declined' || state.game === 'invited' || state.gameSheetOpen[role]) return '';
-  if (state.gameSheetMinimized[role]) return gameFloating(role);
-  const challenge = state.currentChallenge;
-  const label = state.game === 'invited'
-    ? `等待 ${name('them')} 进入游戏…`
-    : state.game === 'ended'
-      ? state.exitBy ? `${name(state.exitBy)}已退出本局` : '本局已结束'
-      : challenge
-          ? `第 ${state.turn} 回合 · ${name(challenge.player)}${challenge.type === 'truth' ? '正在回答真心话' : '正在完成大冒险'}`
-          : `第 ${state.turn} 回合 · 轮到 ${name(state.active)}`;
-  const control = `<button data-action="open-game-sheet" data-owner="${role}">${state.game === 'ended' ? '查看结果' : '打开游戏'}</button>`;
-  return `<div class="game-dock"><span class="dock-mark">真</span><p><b>真心话大冒险</b><small>${label}</small></p>${control}</div>`;
+  return state.gameSheetMinimized[role] ? gameFloating(role) : '';
 }
 
 function gameFloating(role) {
   const ended = state.game === 'ended';
-  const challenge = state.currentChallenge;
-  const status = ended
-      ? '本局已结束'
-    : state.game === 'invited'
-      ? '等待对方进入'
-      : challenge
-          ? `${name(challenge.player)}${challenge.type === 'truth' ? '回答中' : '挑战中'}`
-          : `第 ${state.turn} 回合`;
-  return `<section class="game-float ${ended ? 'is-ended' : ''}" aria-label="真心话大冒险，${status}">
-    <button class="game-float-close" data-action="exit-game" data-owner="${role}" aria-label="退出游戏">${icon('close')}</button>
-    <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="恢复游戏弹窗">
-      <span class="game-float-icon">真</span>
-      <strong>真心话大冒险</strong>
-      <span class="game-float-status"><i></i>${status}</span>
-      <small>${ended ? '点击查看结果' : '点击继续'}</small>
+  return `<section class="game-float ${ended ? 'is-ended' : ''}" aria-label="${ended ? '查看游戏结果' : '继续游戏'}">
+    <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="${ended ? '查看游戏结果' : '恢复游戏弹窗'}">
+      <span class="game-float-icon">${icon('gamepad')}</span><i class="game-float-dot" aria-hidden="true"></i>
     </button>
   </section>`;
 }
