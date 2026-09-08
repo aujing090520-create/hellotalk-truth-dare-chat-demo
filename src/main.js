@@ -13,7 +13,12 @@ const prompts = runtimePromptBank();
 const VOICE_MAX_SECONDS = 60;
 
 const emojiChoices = ['😁', '😊', '😃', '😌', '😉', '😍', '😘', '😙', '😳', '🥳', '😄', '😜', '😇', '😒', '😏', '😰', '😔', '😞', '🥹', '😥', '😨', '😂', '😮', '😱', '😠', '😡', '😤', '😪', '😎', '🤗', '😈', '👽', '❤', '💔', '💕', '💞', '💓', '✨', '💫', '🎵', '🧡', '💛', '💚', '💙', '💜', '🩷', '🖤', '🤍', '🤎', '❣️', '💗', '💖', '💘', '💝', '💟', '🥰', '😚', '🫶', '🤝', '🙌', '👏', '🎉', '🌹', '🌷', '🌻', '🍀', '☀️', '🌙', '⭐️', '🫧', '🎈', '👍', '👎', '🙏', '💪', '👋', '🤚', '✋', '🖐', '👌', '🤌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '☝️', '👆', '👇', '✍️', '💅', '🫰', '🤳', '🙆', '🙋', '🙇', '🤦', '🤷', '💁', '🧏', '🫡', '🫵', '👐', '🫱', '🫲', '☕️', '🎬', '📚', '🎮', '⚽️', '🏀', '🎨', '📷', '✈️', '🚗', '🚲', '🌍', '🏝', '🏔', '🏙', '🍜', '🍕', '🍰', '🍉', '🐱', '🐶', '🐼', '🦊', '🌿', '🌸', '🌈', '🔥', '💧', '❄️', '🌞', '🎁', '🎀', '🧩', '🪄', '🎯', '💤'];
-const roundReactionChoices = ['👏', '❤️', '😂', '🌹'];
+const roundReactionChoices = [
+  { emoji: '👏', label: '鼓掌', tone: 'positive' },
+  { emoji: '❤️', label: '爱心', tone: 'positive' },
+  { emoji: '🩴', label: '丢拖鞋', tone: 'negative' },
+  { emoji: '🥚', label: '扔鸡蛋', tone: 'negative' },
+];
 const photoChoices = [
   { id: 'selfie', label: '自拍', className: 'photo-selfie' },
   { id: 'city', label: '城市', className: 'photo-city' },
@@ -254,7 +259,7 @@ function gameHistory(role) {
     const reactionContent = reaction
       ? `<span class="game-reaction-result">${name(reaction.from)} 送来 ${reaction.emoji}</span>`
       : canReact
-        ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((emoji) => `<button data-action="react-round" data-owner="${role}" data-round-index="${index}" data-reaction="${emoji}" aria-label="发送回应 ${emoji}">${emoji}</button>`).join('')}</div></div>`
+        ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((choice) => `<button class="reaction-${choice.tone}" data-action="react-round" data-owner="${role}" data-round-index="${index}" data-reaction="${choice.emoji}" aria-label="发送回应：${choice.label}">${choice.emoji}</button>`).join('')}</div></div>`
         : '';
     return `<article class="game-history-item"><b>第 ${item.round} 回合 · ${name(item.player)} · ${typeName(item.type)}</b><p>${item.prompt}</p><span>${item.answer}</span>${reactionContent ? `<div class="game-reaction-row">${reactionContent}</div>` : ''}</article>`;
   }).join('')}</section>`;
@@ -269,7 +274,7 @@ function handoffSheet(role, close, sheetActions) {
   const reactionContent = reaction
     ? `<span class="game-reaction-result">${name(reaction.from)} 送来 ${reaction.emoji}</span>`
     : recipientHere
-      ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((emoji) => `<button data-action="react-round" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" data-reaction="${emoji}" aria-label="发送回应 ${emoji}">${emoji}</button>`).join('')}</div></div>`
+      ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((choice) => `<button class="reaction-${choice.tone}" data-action="react-round" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" data-reaction="${choice.emoji}" aria-label="发送回应：${choice.label}">${choice.emoji}</button>`).join('')}</div></div>`
       : `<span class="handoff-reaction-hint">等待对方回应（可选）</span>`;
   const effect = state.reactionEffect?.owner === role
     ? `<div class="reaction-effect-overlay" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`

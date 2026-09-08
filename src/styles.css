@@ -86,6 +86,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-reaction-picker { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #958da0; font-size: 10px; }
 .game-reaction-picker > div { display: flex; gap: 7px; }
 .game-reaction-picker button { width: 33px; height: 33px; display: grid; place-items: center; border: 1px solid #e9e5f2; border-radius: 50%; background: #fff; font-size: 18px; }
+.game-reaction-picker button.reaction-negative { border-color: #f0d9d7; background: #fff8f7; }
 .game-reaction-result { color: #7657dd !important; font-size: 10px !important; }
 .handoff-game-sheet { min-height: 480px; padding-bottom: 82px; }
 .handoff-game-sheet .game-modal-head { margin-bottom: 7px; }
@@ -100,6 +101,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .handoff-game-sheet .game-reaction-picker > span { display: block; margin-bottom: 8px; color: #776c8a; font-size: 11px; }
 .handoff-game-sheet .game-reaction-picker > div { justify-content: center; gap: 12px; }
 .handoff-game-sheet .game-reaction-picker button { width: 39px; height: 39px; border-color: #e3dcfa; font-size: 22px; box-shadow: 0 2px 5px rgba(100, 73, 190, .08); }
+.handoff-game-sheet .game-reaction-picker button.reaction-negative { border-color: #f0d9d7; background: #fff8f7; }
 .handoff-continue { position: absolute; right: 26px; bottom: 53px; left: 26px; width: auto; height: 42px; border-radius: 21px; }
 .handoff-waiting { position: absolute; right: 26px; bottom: 57px; left: 26px; margin: 0; text-align: center; }
 .reaction-effect-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; overflow: hidden; pointer-events: none; background: radial-gradient(circle at center, rgba(255,255,255,.94) 0%, rgba(246,242,255,.9) 48%, rgba(229,219,255,.86) 100%); animation: reaction-effect-in 180ms ease-out both; }
