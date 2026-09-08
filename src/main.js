@@ -5,8 +5,8 @@ import { runtimePromptBank } from './question-store.js';
 const app = document.querySelector('#app');
 
 const players = {
-  me: { name: '林凡', avatar: '林' },
-  them: { name: 'L10', avatar: '/assets/avatar-l10.png' },
+  me: { name: '林凡', avatar: '/assets/avatar-linfan.png' },
+  them: { name: 'L10', avatar: '/assets/avatar-l10-person.png' },
 };
 
 const prompts = runtimePromptBank();
