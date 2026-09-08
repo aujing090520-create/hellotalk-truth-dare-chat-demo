@@ -13,6 +13,7 @@ const prompts = runtimePromptBank();
 const VOICE_MAX_SECONDS = 60;
 
 const emojiChoices = ['😁', '😊', '😃', '😌', '😉', '😍', '😘', '😙', '😳', '🥳', '😄', '😜', '😇', '😒', '😏', '😰', '😔', '😞', '🥹', '😥', '😨', '😂', '😮', '😱', '😠', '😡', '😤', '😪', '😎', '🤗', '😈', '👽', '❤', '💔', '💕', '💞', '💓', '✨', '💫', '🎵', '🧡', '💛', '💚', '💙', '💜', '🩷', '🖤', '🤍', '🤎', '❣️', '💗', '💖', '💘', '💝', '💟', '🥰', '😚', '🫶', '🤝', '🙌', '👏', '🎉', '🌹', '🌷', '🌻', '🍀', '☀️', '🌙', '⭐️', '🫧', '🎈', '👍', '👎', '🙏', '💪', '👋', '🤚', '✋', '🖐', '👌', '🤌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '☝️', '👆', '👇', '✍️', '💅', '🫰', '🤳', '🙆', '🙋', '🙇', '🤦', '🤷', '💁', '🧏', '🫡', '🫵', '👐', '🫱', '🫲', '☕️', '🎬', '📚', '🎮', '⚽️', '🏀', '🎨', '📷', '✈️', '🚗', '🚲', '🌍', '🏝', '🏔', '🏙', '🍜', '🍕', '🍰', '🍉', '🐱', '🐶', '🐼', '🦊', '🌿', '🌸', '🌈', '🔥', '💧', '❄️', '🌞', '🎁', '🎀', '🧩', '🪄', '🎯', '💤'];
+const roundReactionChoices = ['👏', '❤️', '😂', '🌹'];
 
 const toolItems = [
   ['tool-voice.png', '语音通话'], ['tool-bookmark.png', '收藏'], [null, '付费陪练', 'coach'], ['tool-calendar.png', '学习计划'],
@@ -205,9 +206,18 @@ function gamePlayers() {
   }).join('')}</div>`;
 }
 
-function gameHistory() {
+function gameHistory(role) {
   if (!state.roundHistory.length) return '';
-  return `<section class="game-history"><span class="game-history-title">已完成 ${state.completedRounds} 回合</span>${state.roundHistory.map((item) => `<article class="game-history-item"><b>第 ${item.round} 回合 · ${name(item.player)} · ${typeName(item.type)}</b><p>${item.prompt}</p><span>${item.answer}</span></article>`).join('')}</section>`;
+  return `<section class="game-history"><span class="game-history-title">已完成 ${state.completedRounds} 回合</span>${state.roundHistory.map((item, index) => {
+    const reaction = item.reaction;
+    const canReact = role && role !== item.player && !reaction;
+    const reactionContent = reaction
+      ? `<span class="game-reaction-result">${name(reaction.from)} 送来 ${reaction.emoji}</span>`
+      : canReact
+        ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((emoji) => `<button data-action="react-round" data-owner="${role}" data-round-index="${index}" data-reaction="${emoji}" aria-label="发送回应 ${emoji}">${emoji}</button>`).join('')}</div></div>`
+        : '';
+    return `<article class="game-history-item"><b>第 ${item.round} 回合 · ${name(item.player)} · ${typeName(item.type)}</b><p>${item.prompt}</p><span>${item.answer}</span>${reactionContent ? `<div class="game-reaction-row">${reactionContent}</div>` : ''}</article>`;
+  }).join('')}</section>`;
 }
 
 function gameDock(role) {
@@ -251,18 +261,18 @@ function gameSheet(role) {
   }
   if (state.gameSheet === 'choice') {
     const activeHere = state.active === role;
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? '轮到你选择' : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选择真心话或大冒险，系统会随机抽题</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${gameHistory()}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? '轮到你选择' : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选择真心话或大冒险，系统会随机抽题</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${gameHistory(role)}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'prompt') {
     const prompt = currentPrompt();
     const activeHere = state.currentChallenge?.player === role;
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? '轮到你完成' : `等待 ${name(state.currentChallenge.player)} 完成`}</strong></div><div class="game-question-meta">${name(state.currentChallenge.player)} · ${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `完成后自动交给 ${name(other(role))}` : `完成后回合交给你`}</p>${promptAnswerArea(role)}${gameHistory()}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? '轮到你完成' : `等待 ${name(state.currentChallenge.player)} 完成`}</strong></div><div class="game-question-meta">${name(state.currentChallenge.player)} · ${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `完成后自动交给 ${name(other(role))}` : `完成后回合交给你`}</p>${promptAnswerArea(role)}${gameHistory(role)}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'ended') {
     const endedNote = state.exitBy && state.exitBy !== role
       ? `${name(state.exitBy)}已退出本局，游戏已结束`
       : state.exitBy === role ? '你已退出本局，游戏已结束' : '游戏已结束';
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet ended-game-sheet">${close}${sheetActions}<span class="sheet-kicker">真心话大冒险</span><h2>本局已结束</h2><p class="ended-sync-note">${endedNote}</p>${gamePlayers()}${gameHistory()}<button class="wide-purple" data-action="restart" data-owner="${role}">再玩一次</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet ended-game-sheet">${close}${sheetActions}<span class="sheet-kicker">真心话大冒险</span><h2>本局已结束</h2><p class="ended-sync-note">${endedNote}</p>${gamePlayers()}${gameHistory(role)}<button class="wide-purple" data-action="restart" data-owner="${role}">再玩一次</button></section>`;
   }
   return '';
 }
@@ -322,7 +332,7 @@ function complete(answer, declined = false) {
   const challenge = state.currentChallenge;
   if (!challenge) return;
   const result = declined ? `选择跳过本回合${typeName(challenge.type)}` : challenge.responseType === 'voice' ? `语音 ${voiceDuration(state.voice?.duration || 0)}` : answer;
-  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result });
+  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result, reaction: null });
   state.answerDrafts[challenge.player] = '';
   state.emojiSelections[challenge.player] = [];
   state.completedRounds += 1;
@@ -404,6 +414,12 @@ app.addEventListener('click', (event) => {
   if (action === 'open-prompt') { state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'pick-truth' || action === 'pick-dare') { state.type = action === 'pick-truth' ? 'truth' : 'dare'; const prompt = drawPrompt(state.type); state.currentChallenge = { player: state.active, type: state.type, ...prompt }; state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'select-emoji') { const emoji = event.target.closest('[data-emoji]')?.dataset.emoji; const selected = state.emojiSelections[owner]; const index = selected.indexOf(emoji); if (index >= 0) selected.splice(index, 1); else if (selected.length < 3) selected.push(emoji); updatePromptAnswerArea(); return; }
+  if (action === 'react-round') {
+    const index = Number(event.target.closest('[data-round-index]')?.dataset.roundIndex);
+    const emoji = event.target.closest('[data-reaction]')?.dataset.reaction;
+    const item = state.roundHistory[index];
+    if (item && emoji && owner && owner !== item.player && !item.reaction) item.reaction = { from: owner, emoji };
+  }
   if (action === 'start-voice') { state.voice = { status: 'recording', duration: 0, owner }; startVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'pause-voice') { state.voice.status = 'paused'; stopVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'resume-voice') { state.voice.status = 'recording'; startVoiceTicker(); updatePromptAnswerArea(); return; }

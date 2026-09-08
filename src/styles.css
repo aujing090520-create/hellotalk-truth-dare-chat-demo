@@ -76,6 +76,11 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-history-item b { color: #7657dd; font-size: 10px; }
 .game-history-item p { margin: 4px 0; color: #45404c; font-size: 11px; line-height: 15px; }
 .game-history-item span { color: #6f53d5; font-size: 11px; }
+.game-reaction-row { margin-top: 8px; padding-top: 7px; border-top: 1px solid #efedf5; }
+.game-reaction-picker { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #958da0; font-size: 10px; }
+.game-reaction-picker > div { display: flex; gap: 4px; }
+.game-reaction-picker button { width: 25px; height: 25px; display: grid; place-items: center; border: 1px solid #e9e5f2; border-radius: 50%; background: #fff; font-size: 14px; }
+.game-reaction-result { color: #7657dd !important; font-size: 10px !important; }
 .ended-game-sheet { height: 480px; min-height: 480px; }
 .ended-sync-note { color: #7657dd !important; font-weight: 600; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
