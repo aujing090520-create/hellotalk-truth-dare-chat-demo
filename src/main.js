@@ -85,7 +85,7 @@ function icon(name) {
     pause: '<path d="M8 5v14M16 5v14"/>',
     play: '<path d="M8 5.5v13l10-6.5z" fill="currentColor" stroke="none"/>',
     send: '<path d="M21 3 10.5 13.5M21 3l-6.7 18-3.8-7.5L3 9.7z"/>',
-    gamepad: '<path d="M7.2 7.3h9.6c2.1 0 3.7 1.6 4.1 3.6l.9 4.4c.4 2-1.9 3.4-3.2 1.8l-1.8-2.1H7.2l-1.8 2.1c-1.3 1.6-3.6.2-3.2-1.8l.9-4.4c.4-2 2-3.6 4.1-3.6Z" fill="currentColor" stroke="none"/><path d="M8 10.5v4m-2-2h4M16.5 12.3h.01M19 14h.01" stroke="currentColor" stroke-width="1.8"/>',
+    gamepad: '<path d="M7.2 7.3h9.6c2.1 0 3.7 1.6 4.1 3.6l.9 4.4c.4 2-1.9 3.4-3.2 1.8l-1.8-2.1H7.2l-1.8 2.1c-1.3 1.6-3.6.2-3.2-1.8l.9-4.4c.4-2 2-3.6 4.1-3.6Z" fill="currentColor" stroke="none"/><path d="M8 10.5v4m-2-2h4M16.5 12.3h.01M19 14h.01" stroke="#fff" stroke-width="1.8"/>',
     trash: '<path d="M4 7h16M9 7V4h6v3m-9 0 1 14h10l1-14M10 11v6m4-6v6"/>',
     mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4m-3 0h6"/>',
     minimize: '<path d="M5 15h14"/>',
@@ -240,15 +240,16 @@ function handoffSheet(role, close, sheetActions) {
 }
 
 function gameDock(role) {
-  if (state.game === 'idle' || state.game === 'declined' || state.game === 'invited' || state.gameSheetOpen[role]) return '';
+  if (state.game === 'idle' || state.gameSheetOpen[role]) return '';
   return state.gameSheetMinimized[role] ? gameFloating(role) : '';
 }
 
 function gameFloating(role) {
   const ended = state.game === 'ended';
-  const waiting = state.game === 'playing' && state.active && state.active !== role;
-  const status = waiting ? 'waiting' : ended ? 'ended' : 'active';
-  const label = ended ? '查看游戏结果' : waiting ? '等待对方操作' : '恢复游戏弹窗';
+  const declined = state.game === 'declined';
+  const waiting = state.game === 'invited' || (state.game === 'playing' && state.active && state.active !== role);
+  const status = waiting ? 'waiting' : ended ? 'ended' : declined ? 'idle' : 'active';
+  const label = ended ? '查看游戏结果' : waiting ? '等待对方操作' : declined ? '查看游戏状态' : '恢复游戏弹窗';
   return `<section class="game-float ${waiting ? 'is-waiting' : ''} ${ended ? 'is-ended' : ''}" aria-label="${label}">
     <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="${label}">
       <span class="game-float-icon">${icon('gamepad')}</span><i class="game-float-status is-${status}" aria-hidden="true"></i>
