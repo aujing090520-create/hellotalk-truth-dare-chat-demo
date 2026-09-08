@@ -76,7 +76,8 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-history { margin: 13px 0 13px; padding: 10px 11px; border-top: 1px solid #eeeaf5; text-align: left; }
 .game-history-title { display: block; margin-bottom: 7px; color: #8b8395; font-size: 10px; }
 .history-toggle { display: block; margin: 13px auto 0; padding: 5px 11px; border-radius: 14px; color: #7657dd; background: #f2efff; font-size: 11px; }
-.choice-game-sheet .history-toggle, .prompt-game-sheet .history-toggle { position: relative; z-index: 2; }
+.history-inline { position: absolute; top: 52px; right: 55px; z-index: 3; margin: 0; padding: 3px 4px; border-radius: 8px; color: #9b95a3; background: transparent; font-size: 10px; font-weight: 500; }
+.history-inline:hover { color: #7657dd; background: #f7f4ff; }
 .game-history-item { margin: 7px 0; padding: 8px 9px; border-radius: 10px; background: #faf9fd; }
 .game-history-item b { color: #7657dd; font-size: 10px; }
 .game-history-item p { margin: 4px 0; color: #45404c; font-size: 11px; line-height: 15px; }

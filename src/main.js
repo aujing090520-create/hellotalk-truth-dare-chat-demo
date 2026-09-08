@@ -284,8 +284,8 @@ function gameDock(role) {
 
 function historyToggle(role) {
   if (!state.completedRounds) return '';
-  const label = state.historyOpen[role] ? '收起记录' : `查看记录（${state.completedRounds}）`;
-  return `<button class="history-toggle" data-action="toggle-history" data-owner="${role}">${label}</button>`;
+  const label = state.historyOpen[role] ? '收起记录' : `记录（${state.completedRounds}）`;
+  return `<button class="history-toggle history-inline" data-action="toggle-history" data-owner="${role}">${label}</button>`;
 }
 
 function gameFloating(role) {
