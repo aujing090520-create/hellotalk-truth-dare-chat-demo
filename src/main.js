@@ -177,7 +177,7 @@ function voiceMessage(message, role) {
 
 function inviteMessage(message, role) {
   const own = message.sender === role;
-  const owner = own ? role : other(role);
+  const owner = role;
   const status = state.game === 'ended' ? '本局已结束' : state.game === 'invited' ? own ? `等待 ${name('them')} 进入游戏` : '邀请你一起玩' : '已进入游戏';
   return `<div class="game-message-row ${own ? 'own' : 'peer'}">${own ? '' : avatar(message.sender, 'small')}<article class="invite-card"><div class="card-top"><span class="game-logo">真</span><div><strong>真心话大冒险</strong><p>${status}</p></div></div><div class="card-line">邀请你一起玩，双方在弹窗内实时互动</div><button class="card-open" data-action="open-game-sheet" data-owner="${owner}">${state.game === 'ended' ? '查看结果' : '打开游戏'}</button></article></div>`;
 }
@@ -210,7 +210,7 @@ function gameHistory() {
 }
 
 function gameDock(role) {
-  if (state.game === 'idle' || state.game === 'declined' || state.gameSheetOpen[role]) return '';
+  if (state.game === 'idle' || state.game === 'declined' || state.game === 'invited' || state.gameSheetOpen[role]) return '';
   if (state.gameSheetMinimized[role]) return gameFloating(role);
   const challenge = state.currentChallenge;
   const label = state.game === 'invited'
@@ -404,7 +404,7 @@ app.addEventListener('click', (event) => {
   if (action === 'open-mini') { state.toolsOwner = null; state.sheet = { type: 'mini', owner }; }
   if (action === 'open-intro') state.sheet = { type: 'intro', owner };
   if (action === 'close-sheet') state.sheet = null;
-  if (action === 'send-invite') { state.sheet = null; state.messages.push({ kind: 'game-invite', sender: owner || 'me' }); state.game = 'invited'; state.exitBy = null; state.entered = { me: true, them: false }; state.ready = { me: false, them: false }; state.gameSheet = 'invite'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+  if (action === 'send-invite') { state.sheet = null; state.messages.push({ kind: 'game-invite', sender: owner || 'me' }); state.game = 'invited'; state.exitBy = null; state.entered = { me: true, them: false }; state.ready = { me: false, them: false }; state.gameSheet = 'invite'; state.gameSheetOpen = { me: false, them: false }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'accept') { state.entered = { me: true, them: true }; startGame(); }
   if (action === 'decline') { state.game = 'declined'; state.gameSheet = 'invite'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'open-game-sheet' || action === 'restore-game-sheet') { state.gameSheetOpen[owner] = true; state.gameSheetMinimized[owner] = false; }
