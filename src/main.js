@@ -63,6 +63,13 @@ const currentTurnActionLabel = () => {
 const ruleMap = { 'FR-001/1': 'target-entry', 'FR-002/2': 'target-invite', 'FR-003/1': 'target-session', 'FR-003/2': 'target-choice', 'FR-003/4': 'target-actions' };
 let voiceTicker = null;
 let reactionEffectTimer = null;
+const floatOffsets = { me: { x: 0, y: 0 }, them: { x: 0, y: 0 } };
+let floatDrag = null;
+let suppressFloatClick = null;
+
+function resetFloatOffsets() {
+  Object.values(floatOffsets).forEach((offset) => { offset.x = 0; offset.y = 0; });
+}
 
 function avatar(role, size = '') {
   const person = players[role];
@@ -250,7 +257,8 @@ function gameFloating(role) {
   const waiting = state.game === 'invited' || (state.game === 'playing' && state.active && state.active !== role);
   const status = waiting ? 'waiting' : ended ? 'ended' : declined ? 'idle' : 'active';
   const label = ended ? '查看游戏结果' : waiting ? '等待对方操作' : declined ? '查看游戏状态' : '恢复游戏弹窗';
-  return `<section class="game-float ${waiting ? 'is-waiting' : ''} ${ended ? 'is-ended' : ''}" aria-label="${label}">
+  const offset = floatOffsets[role];
+  return `<section class="game-float ${waiting ? 'is-waiting' : ''} ${ended ? 'is-ended' : ''}" data-float-owner="${role}" style="transform:translate3d(${offset.x}px,${offset.y}px,0)" aria-label="${label}">
     <button class="game-float-content" data-action="restore-game-sheet" data-owner="${role}" aria-label="${label}">
       <span class="game-float-icon">${icon('gamepad')}</span><i class="game-float-status is-${status}" aria-hidden="true"></i>
     </button>
@@ -397,6 +405,7 @@ function reset() {
   clearVoice();
   clearTimeout(reactionEffectTimer);
   reactionEffectTimer = null;
+  resetFloatOffsets();
   Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
 }
 
@@ -416,6 +425,10 @@ app.addEventListener('click', (event) => {
   const action = event.target.closest('[data-action]')?.dataset.action;
   const owner = event.target.closest('[data-owner]')?.dataset.owner;
   const rule = event.target.closest('[data-rule]')?.dataset.rule;
+  if (action === 'restore-game-sheet' && suppressFloatClick === owner) {
+    suppressFloatClick = null;
+    return;
+  }
   if (rule && !action) { state.selectedRule = rule; render(); return; }
   if (!action) return;
   if (action === 'toggle-tools') state.toolsOwner = state.toolsOwner === owner ? null : owner;
@@ -475,6 +488,44 @@ app.addEventListener('click', (event) => {
   if (action === 'reset') reset();
   render();
 });
+
+app.addEventListener('pointerdown', (event) => {
+  const content = event.target.closest('.game-float-content');
+  const float = content?.closest('.game-float');
+  const phone = float?.closest('.phone');
+  if (!content || !float || !phone) return;
+  const role = float.dataset.floatOwner;
+  floatDrag = { content, float, phone, role, pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, origin: { ...floatOffsets[role] }, moved: false };
+  content.setPointerCapture?.(event.pointerId);
+  event.preventDefault();
+});
+
+app.addEventListener('pointermove', (event) => {
+  if (!floatDrag || event.pointerId !== floatDrag.pointerId) return;
+  const { float, phone, role, origin } = floatDrag;
+  const dx = event.clientX - floatDrag.startX;
+  const dy = event.clientY - floatDrag.startY;
+  if (Math.abs(dx) + Math.abs(dy) > 3) floatDrag.moved = true;
+  const maxX = Math.max(0, phone.clientWidth - float.offsetWidth);
+  const minY = 44 - float.offsetTop;
+  const maxY = Math.max(minY, phone.clientHeight - 6 - float.offsetTop - float.offsetHeight);
+  const offset = floatOffsets[role];
+  offset.x = Math.min(maxX, Math.max(0, origin.x + dx));
+  offset.y = Math.min(maxY, Math.max(minY, origin.y + dy));
+  float.style.transform = `translate3d(${offset.x}px,${offset.y}px,0)`;
+  event.preventDefault();
+});
+
+function finishFloatDrag(event) {
+  if (!floatDrag || (event.pointerId !== undefined && event.pointerId !== floatDrag.pointerId)) return;
+  const drag = floatDrag;
+  drag.content.releasePointerCapture?.(drag.pointerId);
+  if (drag.moved) suppressFloatClick = drag.role;
+  floatDrag = null;
+}
+
+app.addEventListener('pointerup', finishFloatDrag);
+app.addEventListener('pointercancel', finishFloatDrag);
 
 app.addEventListener('input', (event) => {
   const owner = event.target.dataset.chatOwner;
