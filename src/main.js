@@ -14,6 +14,11 @@ const VOICE_MAX_SECONDS = 60;
 
 const emojiChoices = ['😁', '😊', '😃', '😌', '😉', '😍', '😘', '😙', '😳', '🥳', '😄', '😜', '😇', '😒', '😏', '😰', '😔', '😞', '🥹', '😥', '😨', '😂', '😮', '😱', '😠', '😡', '😤', '😪', '😎', '🤗', '😈', '👽', '❤', '💔', '💕', '💞', '💓', '✨', '💫', '🎵', '🧡', '💛', '💚', '💙', '💜', '🩷', '🖤', '🤍', '🤎', '❣️', '💗', '💖', '💘', '💝', '💟', '🥰', '😚', '🫶', '🤝', '🙌', '👏', '🎉', '🌹', '🌷', '🌻', '🍀', '☀️', '🌙', '⭐️', '🫧', '🎈', '👍', '👎', '🙏', '💪', '👋', '🤚', '✋', '🖐', '👌', '🤌', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '☝️', '👆', '👇', '✍️', '💅', '🫰', '🤳', '🙆', '🙋', '🙇', '🤦', '🤷', '💁', '🧏', '🫡', '🫵', '👐', '🫱', '🫲', '☕️', '🎬', '📚', '🎮', '⚽️', '🏀', '🎨', '📷', '✈️', '🚗', '🚲', '🌍', '🏝', '🏔', '🏙', '🍜', '🍕', '🍰', '🍉', '🐱', '🐶', '🐼', '🦊', '🌿', '🌸', '🌈', '🔥', '💧', '❄️', '🌞', '🎁', '🎀', '🧩', '🪄', '🎯', '💤'];
 const roundReactionChoices = ['👏', '❤️', '😂', '🌹'];
+const photoChoices = [
+  { id: 'selfie', label: '自拍', className: 'photo-selfie' },
+  { id: 'city', label: '城市', className: 'photo-city' },
+  { id: 'food', label: '美食', className: 'photo-food' },
+];
 
 const toolItems = [
   ['tool-voice.png', '语音通话'], ['tool-bookmark.png', '收藏'], [null, '付费陪练', 'coach'], ['tool-calendar.png', '学习计划'],
@@ -30,9 +35,12 @@ const state = {
   currentChallenge: null,
   roundHistory: [],
   voice: null,
+  voicePlayback: { me: false, them: false },
   reactionEffect: null,
   answerDrafts: { me: '', them: '' },
   emojiSelections: { me: [], them: [] },
+  photoSelections: { me: null, them: null },
+  photoPickerOpen: { me: false, them: false },
   drafts: { me: '', them: '' },
   toolsOwner: 'me',
   sheet: null,
@@ -64,6 +72,7 @@ const currentTurnActionLabel = () => {
 const ruleMap = { 'FR-001/1': 'target-entry', 'FR-002/2': 'target-invite', 'FR-003/1': 'target-session', 'FR-003/2': 'target-choice', 'FR-003/4': 'target-actions' };
 let voiceTicker = null;
 let reactionEffectTimer = null;
+let voicePlaybackTimer = null;
 const floatOffsets = { me: { x: 0, y: 0 }, them: { x: 0, y: 0 } };
 let floatDrag = null;
 let suppressFloatClick = null;
@@ -144,6 +153,7 @@ function answerComposer(role) {
   if (state.voice) return voiceRecorder();
   const responseType = state.currentChallenge?.responseType;
   if (responseType === 'emoji_3') return emojiComposer(role);
+  if (responseType === 'photo') return photoComposer(role);
   if (responseType === 'voice') return `<button class="voice-task-start" data-action="start-voice" data-owner="${role}">${icon('mic')}<span>录制短语音</span></button>`;
   const placeholder = state.type === 'truth' ? '回答这个问题…' : '完成挑战后输入回答…';
   return `<div class="answer-box"><input data-answer-owner="${role}" value="${state.answerDrafts[role]}" placeholder="${placeholder}" /></div>`;
@@ -154,6 +164,26 @@ function emojiComposer(role) {
   return `<div class="emoji-composer"><div class="emoji-status"><span>${selected.length ? selected.join(' ') : '从下面选择 3 个表情'}</span><small>${selected.length}/3</small></div><div class="emoji-grid">${emojiChoices.map((emoji, index) => `<button class="emoji-option ${selected.includes(emoji) ? 'selected' : ''}" data-action="select-emoji" data-owner="${role}" data-emoji="${emoji}" data-emoji-key="${index}" aria-label="选择 ${emoji}">${emoji}</button>`).join('')}</div></div>`;
 }
 
+function photoComposer(role) {
+  const selected = state.photoSelections[role];
+  const pickerOpen = state.photoPickerOpen[role];
+  const selectedChoice = photoChoices.find((choice) => choice.id === selected);
+  return `<div class="photo-composer"><div class="photo-status"><span>${selectedChoice ? `已选择 1 张${selectedChoice.label}照片` : '选择 1 张照片'}</span><small>${selected ? '已选' : '未选择'}</small></div>${selectedChoice ? `<div class="photo-selected"><span class="photo-thumb ${selectedChoice.className}"><img src="/assets/avatar-l10.png" alt="已选择的照片" /></span><span>${selectedChoice.label}照片</span><button data-action="toggle-photo-picker" data-owner="${role}">更换</button></div>` : ''}<button class="photo-open" data-action="toggle-photo-picker" data-owner="${role}">${pickerOpen ? '收起相册' : '打开相册'}</button>${pickerOpen ? `<div class="photo-picker">${photoChoices.map((choice) => `<button class="photo-choice ${selected === choice.id ? 'selected' : ''}" data-action="select-photo" data-owner="${role}" data-photo-id="${choice.id}"><span class="photo-thumb ${choice.className}"><img src="/assets/avatar-l10.png" alt="${choice.label}照片" /></span><small>${choice.label}</small></button>`).join('')}</div>` : ''}</div>`;
+}
+
+function answerValue(item, role) {
+  if (item.answerKind === 'voice') {
+    const playing = state.voicePlayback[role];
+    const bars = [7, 12, 18, 10, 15, 22, 13, 19, 9, 16].map((height) => `<i style="--wave-height:${height}px"></i>`).join('');
+    return `<button class="voice-answer-player ${playing ? 'is-playing' : ''}" data-action="play-round-voice" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" aria-label="${playing ? '暂停语音' : '播放语音'}"><span class="voice-answer-play">${icon(playing ? 'pause' : 'play')}</span><span class="voice-answer-wave">${bars}</span><span class="voice-answer-duration">${voiceDuration(item.duration || 0)}</span></button>`;
+  }
+  if (item.answerKind === 'photo') {
+    const choice = photoChoices.find((entry) => entry.id === item.photoId) || photoChoices[0];
+    return `<div class="photo-answer-value"><span class="photo-thumb ${choice.className}"><img src="/assets/avatar-l10.png" alt="已发送照片" /></span><span>已发送 1 张${choice.label}照片</span></div>`;
+  }
+  return `<div class="handoff-answer-value">${item.answer}</div>`;
+}
+
 function promptAnswerArea(role) {
   const challenge = state.currentChallenge;
   if (!challenge || challenge.player !== role) {
@@ -162,7 +192,7 @@ function promptAnswerArea(role) {
   }
   const recording = state.voice?.status === 'recording' || state.voice?.status === 'paused';
   const responseType = challenge.responseType;
-  const ready = responseType === 'emoji_3' ? state.emojiSelections[role].length === 3 : state.answerDrafts[role].trim();
+  const ready = responseType === 'emoji_3' ? state.emojiSelections[role].length === 3 : responseType === 'photo' ? Boolean(state.photoSelections[role]) : state.answerDrafts[role].trim();
   const actions = recording ? '' : responseType === 'voice'
     ? `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button></div>`
     : `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button><button class="purple" data-action="submit" data-owner="${role}" ${ready ? '' : 'disabled'}>完成并继续</button></div>`;
@@ -244,7 +274,7 @@ function handoffSheet(role, close, sheetActions) {
   const effect = state.reactionEffect?.owner === role
     ? `<div class="reaction-effect-overlay" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
     : '';
-  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p><div class="handoff-answer-value">${item.answer}</div><div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p>${answerValue(item, role)}<div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
 }
 
 function gameDock(role) {
@@ -364,6 +394,7 @@ function startGame() {
   state.completedRounds = 0;
   state.currentChallenge = null;
   state.reactionEffect = null;
+  state.voicePlayback = { me: false, them: false };
   state.roundHistory = [];
   state.usedPromptIds = { truth: [], dare: [] };
   state.ready = { me: true, them: true };
@@ -376,10 +407,15 @@ function startGame() {
 function complete(answer, declined = false) {
   const challenge = state.currentChallenge;
   if (!challenge) return;
-  const result = declined ? `选择跳过本回合${typeName(challenge.type)}` : challenge.responseType === 'voice' ? `语音 ${voiceDuration(state.voice?.duration || 0)}` : answer;
-  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result, reaction: null });
+  const voiceSeconds = challenge.responseType === 'voice' ? state.voice?.duration || 0 : 0;
+  const photoId = challenge.responseType === 'photo' ? state.photoSelections[challenge.player] : null;
+  const result = declined ? `选择跳过本回合${typeName(challenge.type)}` : challenge.responseType === 'voice' ? `语音 ${voiceDuration(voiceSeconds)}` : challenge.responseType === 'photo' ? '已发送照片' : answer;
+  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result, answerKind: challenge.responseType, duration: voiceSeconds, photoId, reaction: null });
   state.answerDrafts[challenge.player] = '';
   state.emojiSelections[challenge.player] = [];
+  state.photoSelections[challenge.player] = null;
+  state.photoPickerOpen[challenge.player] = false;
+  state.voicePlayback = { me: false, them: false };
   state.completedRounds += 1;
   state.active = other(state.active);
   state.turn += 1;
@@ -416,8 +452,10 @@ function reset() {
   clearVoice();
   clearTimeout(reactionEffectTimer);
   reactionEffectTimer = null;
+  clearTimeout(voicePlaybackTimer);
+  voicePlaybackTimer = null;
   resetFloatOffsets();
-  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, historyOpen: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
+  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, voicePlayback: { me: false, them: false }, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, historyOpen: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, photoSelections: { me: null, them: null }, photoPickerOpen: { me: false, them: false }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
 }
 
 function drawPrompt(type) {
@@ -464,6 +502,11 @@ app.addEventListener('click', (event) => {
   if (action === 'minimize-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = true; }
   if (action === 'close-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = false; }
   if (action === 'toggle-history') { state.historyOpen[owner] = !state.historyOpen[owner]; }
+  if (action === 'toggle-photo-picker') { state.photoPickerOpen[owner] = !state.photoPickerOpen[owner]; }
+  if (action === 'select-photo') {
+    state.photoSelections[owner] = event.target.closest('[data-photo-id]')?.dataset.photoId || null;
+    state.photoPickerOpen[owner] = false;
+  }
   if (action === 'open-choice') { state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'continue-after-handoff' && state.gameSheet === 'handoff' && owner === state.active) { state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
   if (action === 'open-prompt') { state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
@@ -486,12 +529,23 @@ app.addEventListener('click', (event) => {
       }, 1600);
     }
   }
+  if (action === 'play-round-voice') {
+    const playbackOwner = owner || 'me';
+    state.voicePlayback[playbackOwner] = !state.voicePlayback[playbackOwner];
+    clearTimeout(voicePlaybackTimer);
+    if (state.voicePlayback[playbackOwner]) {
+      voicePlaybackTimer = setTimeout(() => {
+        state.voicePlayback[playbackOwner] = false;
+        render();
+      }, 1800);
+    }
+  }
   if (action === 'start-voice') { state.voice = { status: 'recording', duration: 0, owner }; startVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'pause-voice') { state.voice.status = 'paused'; stopVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'resume-voice') { state.voice.status = 'recording'; startVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'cancel-voice' || action === 'discard-voice') { clearVoice(); updatePromptAnswerArea(); return; }
   if (action === 'send-voice') { complete(''); render(); return; }
-  if (action === 'submit') { const responseType = state.currentChallenge?.responseType; const answer = responseType === 'emoji_3' ? state.emojiSelections[owner].join(' ') : state.answerDrafts[owner].trim(); if (!answer) return; complete(answer); }
+  if (action === 'submit') { const responseType = state.currentChallenge?.responseType; const answer = responseType === 'emoji_3' ? state.emojiSelections[owner].join(' ') : responseType === 'photo' ? '已发送照片' : state.answerDrafts[owner].trim(); if (!answer) return; complete(answer); }
   if (action === 'decline-prompt') complete('', true);
   if (action === 'send-chat' && state.drafts[owner].trim()) { state.messages.push({ kind: 'text', sender: owner, text: state.drafts[owner].trim() }); state.drafts[owner] = ''; }
   if (action === 'exit-game' || action === 'end-game') exitGame(owner);

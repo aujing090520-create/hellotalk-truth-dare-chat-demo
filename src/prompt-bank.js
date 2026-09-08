@@ -9,6 +9,7 @@
 const text = (id, text) => ({ id, text, responseType: 'text' });
 const voice = (id, text) => ({ id, text, responseType: 'voice', maxSeconds: 60 });
 const emoji3 = (id, text) => ({ id, text, responseType: 'emoji_3', selectionCount: 3 });
+const photo = (id, text) => ({ id, text, responseType: 'photo', mediaType: 'photo' });
 
 export const promptBank = {
   truth: [
@@ -62,6 +63,10 @@ export const promptBank = {
     emoji3('dare_emoji_06', '你用三个表情表达会推荐的食物。'),
     emoji3('dare_emoji_07', '你用三个表情给自己发送一份好心情。'),
     emoji3('dare_emoji_08', '你用三个表情表达想和朋友一起做的事。'),
+    photo('dare_photo_01', '从相册发一张自拍，让对方认识真实的你。'),
+    photo('dare_photo_02', '从相册选一张代表今天心情的照片发给对方。'),
+    photo('dare_photo_03', '发一张你所在城市的照片，让对方猜猜这是哪里。'),
+    photo('dare_photo_04', '发一张你最近喜欢的食物照片，并说说为什么。'),
   ],
 };
 
@@ -69,4 +74,5 @@ export const responseComponentSpec = {
   text: { component: '文字输入框', submit: '完成并继续', rules: '真心话与文字大冒险均必填；仅文字作答' },
   voice: { component: '原地短语音录制条', submit: '发送', rules: '最长 60 秒；不提供文字替代' },
   emoji_3: { component: '直接展示全部表情的 8 列网格', submit: '完成并继续', rules: '必须选满 3 个' },
+  photo: { component: '当前弹窗内相册选择器', submit: '完成并继续', rules: '选择 1 张照片；首版使用演示照片，不接入真实上传' },
 };

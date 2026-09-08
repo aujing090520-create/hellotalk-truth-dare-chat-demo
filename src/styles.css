@@ -127,4 +127,28 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-float-status { position: absolute; top: 6px; left: 52px; width: 10px; height: 10px; border: 2px solid #fff; border-radius: 50%; background: #f34768; }
 .game-float-status.is-waiting { top: 16px; left: 62px; width: 15px; height: 15px; border: 3px solid #e6defe; border-right-color: #805ff0; background: #fff; }
 .game-float-status.is-ended { background: #f34768; }
+.voice-answer-player { width: 100%; min-height: 46px; display: flex; align-items: center; gap: 9px; padding: 7px 11px; border-radius: 11px; color: #7047f5; background: #efecff; text-align: left; }
+.voice-answer-play { width: 24px; height: 28px; display: grid; place-items: center; flex: 0 0 24px; }
+.voice-answer-play .icon { width: 20px; height: 20px; }
+.voice-answer-wave { display: flex; align-items: center; gap: 3px; height: 24px; flex: 1; overflow: hidden; }
+.voice-answer-wave i { width: 3px; height: var(--wave-height); max-height: 22px; border-radius: 2px; background: currentColor; opacity: .5; }
+.voice-answer-player.is-playing .voice-answer-wave i { animation: voice-wave 600ms ease-in-out infinite alternate; animation-delay: calc(var(--wave-height) * -20ms); opacity: .9; }
+.voice-answer-duration { min-width: 32px; color: #7657dd; font-size: 12px; text-align: right; }
+.photo-composer { padding: 10px; border-radius: 11px; background: #f5f3fa; text-align: left; }
+.photo-status { display: flex; align-items: center; justify-content: space-between; color: #5e5967; font-size: 12px; }
+.photo-status small { color: #8c78d8; font-size: 11px; }
+.photo-open { width: 100%; height: 38px; margin-top: 8px; border-radius: 9px; color: #7047f5; background: #eeeaff; font-size: 12px; font-weight: 600; }
+.photo-selected { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: #5e5967; font-size: 11px; }
+.photo-selected button { margin-left: auto; color: #7047f5; font-size: 11px; }
+.photo-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8e3f2; }
+.photo-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px; border: 1px solid transparent; border-radius: 8px; background: #fff; }
+.photo-choice.selected { border-color: #805ff0; box-shadow: inset 0 0 0 1px #805ff0; }
+.photo-choice small { color: #77727d; font-size: 10px; }
+.photo-thumb { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; background: #eeeaf8; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.photo-thumb.photo-city { background: linear-gradient(135deg, #8dc7e8, #7566db); }
+.photo-thumb.photo-city img { opacity: .52; filter: hue-rotate(45deg) saturate(1.25); }
+.photo-thumb.photo-food { background: linear-gradient(135deg, #f6c26f, #ec7d91); }
+.photo-thumb.photo-food img { opacity: .48; filter: sepia(.8) saturate(1.5); }
+.photo-answer-value { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 10px; color: #5f42c8; background: #fff; font-size: 12px; }
 .game-float-status.is-idle { display: none; }
