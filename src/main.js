@@ -30,6 +30,7 @@ const state = {
   currentChallenge: null,
   roundHistory: [],
   voice: null,
+  reactionEffect: null,
   answerDrafts: { me: '', them: '' },
   emojiSelections: { me: [], them: [] },
   drafts: { me: '', them: '' },
@@ -61,6 +62,7 @@ const currentTurnActionLabel = () => {
 };
 const ruleMap = { 'FR-001/1': 'target-entry', 'FR-002/2': 'target-invite', 'FR-003/1': 'target-session', 'FR-003/2': 'target-choice', 'FR-003/4': 'target-actions' };
 let voiceTicker = null;
+let reactionEffectTimer = null;
 
 function avatar(role, size = '') {
   const person = players[role];
@@ -231,7 +233,10 @@ function handoffSheet(role, close, sheetActions) {
     : recipientHere
       ? `<div class="game-reaction-picker"><span>给个回应（可选）</span><div>${roundReactionChoices.map((emoji) => `<button data-action="react-round" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" data-reaction="${emoji}" aria-label="发送回应 ${emoji}">${emoji}</button>`).join('')}</div></div>`
       : `<span class="handoff-reaction-hint">等待对方回应（可选）</span>`;
-  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p><div class="handoff-answer-value">${item.answer}</div><div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+  const effect = state.reactionEffect?.owner === role
+    ? `<div class="reaction-effect-overlay" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
+    : '';
+  return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p><div class="handoff-answer-value">${item.answer}</div><div class="game-reaction-row">${reactionContent}</div></article>${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
 }
 
 function gameDock(role) {
@@ -329,12 +334,15 @@ function render() {
 }
 
 function startGame() {
+  clearTimeout(reactionEffectTimer);
+  reactionEffectTimer = null;
   state.game = 'playing';
   state.active = 'me';
   state.turn = 1;
   state.type = null;
   state.completedRounds = 0;
   state.currentChallenge = null;
+  state.reactionEffect = null;
   state.roundHistory = [];
   state.usedPromptIds = { truth: [], dare: [] };
   state.ready = { me: true, them: true };
@@ -383,7 +391,9 @@ function exitGame(role = null) {
 
 function reset() {
   clearVoice();
-  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
+  clearTimeout(reactionEffectTimer);
+  reactionEffectTimer = null;
+  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
 }
 
 function drawPrompt(type) {
@@ -434,7 +444,18 @@ app.addEventListener('click', (event) => {
     const index = Number(event.target.closest('[data-round-index]')?.dataset.roundIndex);
     const emoji = event.target.closest('[data-reaction]')?.dataset.reaction;
     const item = state.roundHistory[index];
-    if (item && emoji && owner && owner !== item.player && !item.reaction) item.reaction = { from: owner, emoji };
+    if (item && emoji && owner && owner !== item.player && !item.reaction) {
+      item.reaction = { from: owner, emoji };
+      state.reactionEffect = { owner: other(owner), from: owner, emoji, id: `${Date.now()}-${index}` };
+      const effectId = state.reactionEffect.id;
+      clearTimeout(reactionEffectTimer);
+      reactionEffectTimer = setTimeout(() => {
+        if (state.reactionEffect?.id === effectId) {
+          state.reactionEffect = null;
+          render();
+        }
+      }, 1600);
+    }
   }
   if (action === 'start-voice') { state.voice = { status: 'recording', duration: 0, owner }; startVoiceTicker(); updatePromptAnswerArea(); return; }
   if (action === 'pause-voice') { state.voice.status = 'paused'; stopVoiceTicker(); updatePromptAnswerArea(); return; }
