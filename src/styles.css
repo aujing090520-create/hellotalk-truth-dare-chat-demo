@@ -166,7 +166,11 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .photo-status small { color: #8c78d8; font-size: 11px; }
 .photo-open { width: 100%; height: 38px; margin-top: 8px; border-radius: 9px; color: #7047f5; background: #eeeaff; font-size: 12px; font-weight: 600; }
 .photo-selected { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: #5e5967; font-size: 11px; }
-.photo-selected button { margin-left: auto; color: #7047f5; font-size: 11px; }
+.photo-selected-name { flex: 1; min-width: 0; }
+.photo-selected button { color: #7047f5; font-size: 11px; white-space: nowrap; }
+.photo-selected .photo-remove { color: #9a7183; }
+.photo-file-input { display: none; }
+.photo-thumb.photo-uploaded { width: 56px; height: 56px; border-radius: 10px; }
 .photo-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8e3f2; }
 .photo-choice { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px; border: 1px solid transparent; border-radius: 8px; background: #fff; }
 .photo-choice.selected { border-color: #805ff0; box-shadow: inset 0 0 0 1px #805ff0; }

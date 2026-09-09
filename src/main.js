@@ -172,9 +172,12 @@ function emojiComposer(role) {
 
 function photoComposer(role) {
   const selected = state.photoSelections[role];
-  const pickerOpen = state.photoPickerOpen[role];
-  const selectedChoice = photoChoices.find((choice) => choice.id === selected);
-  return `<div class="photo-composer"><div class="photo-status"><span>${selectedChoice ? `已选择 1 张${selectedChoice.label}照片` : '选择 1 张照片'}</span><small>${selected ? '已选' : '未选择'}</small></div>${selectedChoice ? `<div class="photo-selected"><span class="photo-thumb ${selectedChoice.className}"><img src="/assets/avatar-l10.png" alt="已选择的照片" /></span><span>${selectedChoice.label}照片</span><button data-action="toggle-photo-picker" data-owner="${role}">更换</button></div>` : ''}<button class="photo-open" data-action="toggle-photo-picker" data-owner="${role}">${pickerOpen ? '收起相册' : '打开相册'}</button>${pickerOpen ? `<div class="photo-picker">${photoChoices.map((choice) => `<button class="photo-choice ${selected === choice.id ? 'selected' : ''}" data-action="select-photo" data-owner="${role}" data-photo-id="${choice.id}"><span class="photo-thumb ${choice.className}"><img src="/assets/avatar-l10.png" alt="${choice.label}照片" /></span><small>${choice.label}</small></button>`).join('')}</div>` : ''}</div>`;
+  const hasSelection = Boolean(selected?.dataUrl);
+  const input = `<input class="photo-file-input" type="file" accept="image/*" data-photo-input="${role}" aria-label="选择照片" />`;
+  if (!hasSelection) {
+    return `<div class="photo-composer"><div class="photo-status"><span>选择 1 张照片</span><small>未选择</small></div>${input}<button class="photo-open" data-action="open-photo-picker" data-owner="${role}">打开相册</button></div>`;
+  }
+  return `<div class="photo-composer"><div class="photo-status"><span>已选择 1 张照片</span><small>已选</small></div>${input}<div class="photo-selected"><span class="photo-thumb photo-uploaded"><img src="${selected.dataUrl}" alt="已选择的照片" /></span><span class="photo-selected-name">已选择照片</span><button data-action="replace-photo" data-owner="${role}">更换</button><button class="photo-remove" data-action="remove-photo" data-owner="${role}">删除</button></div></div>`;
 }
 
 function answerValue(item, role) {
@@ -184,8 +187,10 @@ function answerValue(item, role) {
     return `<button class="voice-answer-player ${playing ? 'is-playing' : ''}" data-action="play-round-voice" data-owner="${role}" data-round-index="${state.roundHistory.length - 1}" aria-label="${playing ? '暂停语音' : '播放语音'}"><span class="voice-answer-play">${icon(playing ? 'pause' : 'play')}</span><span class="voice-answer-wave">${bars}</span><span class="voice-answer-duration">${voiceDuration(item.duration || 0)}</span></button>`;
   }
   if (item.answerKind === 'photo') {
-    const choice = photoChoices.find((entry) => entry.id === item.photoId) || photoChoices[0];
-    return `<div class="photo-answer-value"><span class="photo-thumb ${choice.className}"><img src="/assets/avatar-l10.png" alt="已发送照片" /></span><span>已发送 1 张${choice.label}照片</span></div>`;
+    const choice = photoChoices.find((entry) => entry.id === item.photoId);
+    const image = item.photoData || '/assets/avatar-l10.png';
+    const className = choice?.className || 'photo-uploaded';
+    return `<div class="photo-answer-value"><span class="photo-thumb ${className}"><img src="${image}" alt="已发送照片" /></span><span>已发送 1 张照片</span></div>`;
   }
   return `<div class="handoff-answer-value">${item.answer}</div>`;
 }
@@ -421,9 +426,11 @@ function complete(answer, declined = false) {
   const challenge = state.currentChallenge;
   if (!challenge) return;
   const voiceSeconds = challenge.responseType === 'voice' ? state.voice?.duration || 0 : 0;
-  const photoId = challenge.responseType === 'photo' ? state.photoSelections[challenge.player] : null;
+  const photoSelection = challenge.responseType === 'photo' ? state.photoSelections[challenge.player] : null;
+  const photoId = photoSelection?.id || null;
+  const photoData = photoSelection?.dataUrl || null;
   const result = declined ? `选择跳过本回合${typeName(challenge.type)}` : challenge.responseType === 'voice' ? `语音 ${voiceDuration(voiceSeconds)}` : challenge.responseType === 'photo' ? '已发送照片' : answer;
-  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result, answerKind: challenge.responseType, duration: voiceSeconds, photoId, reaction: null });
+  state.roundHistory.push({ round: state.turn, player: challenge.player, type: challenge.type, prompt: challenge.text, answer: result, answerKind: challenge.responseType, duration: voiceSeconds, photoId, photoData, reaction: null });
   state.answerDrafts[challenge.player] = '';
   state.emojiSelections[challenge.player] = [];
   state.photoSelections[challenge.player] = null;
@@ -516,9 +523,12 @@ app.addEventListener('click', (event) => {
   if (action === 'close-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = false; }
   if (action === 'toggle-history') { state.historyOpen[owner] = true; }
   if (action === 'close-history') { state.historyOpen[owner] = false; }
-  if (action === 'toggle-photo-picker') { state.photoPickerOpen[owner] = !state.photoPickerOpen[owner]; }
-  if (action === 'select-photo') {
-    state.photoSelections[owner] = event.target.closest('[data-photo-id]')?.dataset.photoId || null;
+  if (action === 'open-photo-picker' || action === 'replace-photo') {
+    document.querySelector(`input[data-photo-input="${owner}"]`)?.click();
+    return;
+  }
+  if (action === 'remove-photo') {
+    state.photoSelections[owner] = null;
     state.photoPickerOpen[owner] = false;
   }
   if (action === 'open-choice') { state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
@@ -567,6 +577,21 @@ app.addEventListener('click', (event) => {
   if (action === 'toggle-review') { state.review = !state.review; state.selectedRule = null; }
   if (action === 'reset') reset();
   render();
+});
+
+app.addEventListener('change', (event) => {
+  const input = event.target.closest('[data-photo-input]');
+  if (!input) return;
+  const owner = input.dataset.photoInput;
+  const file = input.files?.[0];
+  if (!owner || !file || !file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.photoSelections[owner] = { id: `upload-${Date.now()}`, name: file.name, dataUrl: reader.result };
+    state.photoPickerOpen[owner] = false;
+    render();
+  };
+  reader.readAsDataURL(file);
 });
 
 app.addEventListener('pointerdown', (event) => {
