@@ -77,7 +77,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .choice-game-sheet .game-players { margin: 15px 0 5px; transform: scale(.78); transform-origin: top center; height: 69px; }
 .choice-game-sheet > p { max-width: 250px; margin: 0 auto 16px; line-height: 19px; }
 .choice-game-sheet .choice-grid { margin-top: 7px; }
-.prompt-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding: 41px 20px 70px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); overflow-y: auto; }
+.prompt-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding: 41px 20px 48px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); overflow-y: auto; }
 .prompt-head { gap: 3px; margin-bottom: 12px; }
 .prompt-head .sheet-kicker { margin-bottom: 1px; color: #8062e8; font-size: 12px; letter-spacing: .02em; }
 .prompt-head strong { color: #302a42; font-size: 18px; line-height: 24px; }
@@ -111,10 +111,10 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-reaction-picker button { width: 33px; height: 33px; display: grid; place-items: center; border: 1px solid #e9e5f2; border-radius: 50%; background: #fff; font-size: 18px; }
 .game-reaction-picker button.reaction-negative { border-color: #f0d9d7; background: #fff8f7; }
 .game-reaction-result { color: #7657dd !important; font-size: 10px !important; }
-.handoff-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding-bottom: 70px; overflow: hidden; }
+.handoff-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding-bottom: 48px; overflow: hidden; }
 .handoff-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .handoff-scroll::-webkit-scrollbar { display: none; }
-.handoff-footer { flex: 0 0 auto; padding-top: 10px; background: #fff; }
+.handoff-footer { flex: 0 0 auto; padding-top: 6px; background: #fff; }
 .handoff-game-sheet .game-modal-head { margin-bottom: 7px; }
 .handoff-state { max-width: 280px; margin: 0 auto 14px; color: #77727d; font-size: 12px; line-height: 19px; }
 .handoff-answer-card { margin: 0; padding: 14px 13px 12px; border: 1px solid #ece8f4; border-radius: 13px; background: #faf9fd; text-align: left; }
