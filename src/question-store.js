@@ -1,6 +1,6 @@
 import { promptBank } from './prompt-bank.js';
 
-const STORAGE_KEY = 'hellotalk-truth-dare-question-bank-v1';
+const STORAGE_KEY = 'hellotalk-truth-dare-question-bank-v2';
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const normalizeRecord = (record) => record.responseType === 'voice'
