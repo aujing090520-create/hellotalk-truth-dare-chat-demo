@@ -160,7 +160,10 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
 .ended-game-sheet .game-player .avatar { width: 42px; height: 42px; font-size: 15px; }
 .ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
-.prompt-game-sheet #answer-area { flex: 0 0 auto; }
+.prompt-game-sheet #answer-area { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.prompt-game-sheet #answer-area .prompt-actions { margin-top: auto; }
+.prompt-game-sheet .emoji-composer { min-height: 0; display: flex; flex: 1 1 auto; flex-direction: column; overflow: hidden; }
+.prompt-game-sheet .emoji-grid { min-height: 0; flex: 1 1 auto; max-height: none; }
 .prompt-game-sheet .prompt-actions { position: static; z-index: 3; width: 100%; margin: 10px 0 0; padding: 4px 0 6px; background: transparent; }
 .prompt-game-sheet .prompt-actions .purple { min-width: 104px; height: 38px; padding: 0 16px; border-radius: 19px; }
 .game-sheet > .end-game { position: absolute; right: 0; bottom: 18px; left: 0; z-index: 4; margin: 0 auto; }
