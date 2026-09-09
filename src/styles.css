@@ -133,9 +133,12 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .reaction-effect-spark.spark-a { top: 26%; left: 24%; }
 .reaction-effect-spark.spark-b { top: 34%; right: 22%; color: #ed70ba; animation-delay: 70ms; }
 .reaction-effect-spark.spark-c { bottom: 28%; left: 29%; color: #f2b94b; animation-delay: 130ms; }
-.history-sheet { height: 480px; min-height: 480px; padding-bottom: 30px; text-align: center; }
-.history-sheet > p { margin-bottom: 12px; }
-.history-sheet .game-history { max-height: 320px; overflow-y: auto; margin-top: 12px; padding-bottom: 8px; }
+.history-sheet { height: 480px; min-height: 480px; display: flex; flex-direction: column; padding-bottom: 30px; text-align: center; overflow: hidden; }
+.history-sheet > p { flex: 0 0 auto; margin-bottom: 12px; }
+.history-back .icon { width: 27px; height: 27px; stroke-width: 2.1; }
+.history-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.history-scroll::-webkit-scrollbar { display: none; }
+.history-sheet .game-history { max-height: none; overflow: visible; margin-top: 0; padding-bottom: 8px; }
 .handoff-game-sheet .sheet-close, .handoff-game-sheet .game-sheet-actions { z-index: 7; }
 .ended-game-sheet { height: 480px; min-height: 480px; }
 .ended-sync-note { color: #7657dd !important; font-weight: 600; }

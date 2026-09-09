@@ -302,7 +302,7 @@ function historyToggle(role) {
 }
 
 function historySheet(role, close, sheetActions) {
-  return `<div class="scrim game-scrim" data-action="close-history" data-owner="${role}"></div><section class="sheet game-sheet history-sheet">${close}${sheetActions}<span class="sheet-kicker">真心话大冒险</span><h2>游戏记录</h2><p>查看已完成的回合与双方回应</p>${gameHistory(role)}</section>`;
+  return `<div class="scrim game-scrim" data-action="close-history" data-owner="${role}"></div><section class="sheet game-sheet history-sheet">${close}${sheetActions}<span class="sheet-kicker">真心话大冒险</span><h2>游戏记录</h2><p>查看已完成的回合与双方回应</p><div class="history-scroll">${gameHistory(role)}</div></section>`;
 }
 
 function gameFloating(role) {
@@ -339,7 +339,7 @@ function gameSheet(role) {
   const close = `<button class="sheet-close" data-action="exit-game" data-owner="${role}" aria-label="退出游戏">${icon('close')}</button>`;
   const minimize = `<button class="sheet-minimize" data-action="minimize-game-sheet" data-owner="${role}" aria-label="最小化游戏">${icon('minimize')}</button>`;
   const sheetActions = `<div class="game-sheet-actions">${state.completedRounds ? historyToggle(role) : ''}${minimize}</div>`;
-  if (state.historyOpen[role]) return historySheet(role, `<button class="sheet-close" data-action="close-history" data-owner="${role}" aria-label="关闭记录">${icon('close')}</button>`, '');
+  if (state.historyOpen[role]) return historySheet(role, `<button class="sheet-close history-back" data-action="close-history" data-owner="${role}" aria-label="返回游戏">${icon('back')}</button>`, '');
   if (state.gameSheet === 'invite') {
     const recipient = role === 'them';
     if (state.game === 'declined') return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>暂不开始</h2><p>${name('them')}暂时没有加入这局游戏</p><div class="invite-preview">${avatar('me')}<span>×</span>${avatar('them')}</div><button class="end-game" data-action="exit-game" data-owner="${role}">退出游戏</button></section>`;
