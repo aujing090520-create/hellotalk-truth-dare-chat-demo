@@ -43,6 +43,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-scrim { background: rgba(26, 21, 42, .56); }
 .game-sheet { height: 480px; min-height: 480px; max-height: calc(100% - 12px); padding: 40px 26px 24px; text-align: center; overflow-y: auto; }
 .game-sheet-actions { position: absolute; top: 15px; right: 14px; z-index: 2; display: flex; align-items: center; gap: 8px; }
+.game-sheet-topline { position: absolute; top: 18px; left: 50%; z-index: 1; transform: translateX(-50%); color: #8870dc; font-size: 11px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
 .sheet-history { position: relative; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: #9b95a3; background: #f7f5fb; }
 .sheet-history .icon { width: 17px; height: 17px; stroke-width: 1.8; }
 .sheet-history b { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; border: 2px solid #fff; border-radius: 7px; color: #fff; background: #8b6cf1; font-size: 8px; line-height: 10px; }
@@ -88,10 +89,11 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .prompt-question-card .game-question-meta { min-height: 24px; padding: 3px 10px; font-size: 11px; }
 .prompt-question-card h2 { min-height: 0; max-width: 300px; margin: 9px auto 6px; color: #292532; font-size: 18px; line-height: 26px; }
 .prompt-question-card p { max-width: 280px; margin: 0 auto; color: #8d849c; font-size: 11px; line-height: 17px; }
-.prompt-game-sheet #answer-area { margin-top: 2px; }
+.prompt-game-sheet #answer-area { margin-top: 2px; padding-top: 10px; border-top: 1px solid #f0edf6; }
 .prompt-game-sheet .answer-box { min-height: 49px; padding: 8px 12px; border: 1px solid #eeeaf5; border-radius: 16px; background: #f8f7fa; }
 .prompt-game-sheet .answer-box input { height: 31px; color: #393341; font-size: 13px; }
-.prompt-game-sheet:has(.emoji-composer) .emoji-grid { max-height: 116px; gap: 4px 5px; padding-top: 6px; padding-bottom: 8px; }
+.prompt-game-sheet:has(.emoji-composer) #answer-area { padding-top: 0; border-top: 0; }
+.prompt-game-sheet:has(.emoji-composer) .emoji-grid { max-height: 146px; gap: 4px 5px; padding-top: 6px; padding-bottom: 8px; }
 .prompt-game-sheet:has(.emoji-composer) .emoji-option { height: 28px; font-size: 22px; }
 .answer-observer { display: grid; place-items: center; min-height: 73px; padding: 0 10px; border-radius: 11px; background: #f8f6ff; color: #8e8798; font-size: 12px; }
 .game-history { margin: 13px 0 13px; padding: 10px 11px; border-top: 1px solid #eeeaf5; text-align: left; }
@@ -155,7 +157,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
 .ended-game-sheet .game-player .avatar { width: 42px; height: 42px; font-size: 15px; }
 .ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
-.prompt-game-sheet .prompt-actions { position: absolute; right: 26px; bottom: 53px; left: 26px; z-index: 3; margin: 0; padding: 8px 0; background: #fff; }
+.prompt-game-sheet .prompt-actions { position: absolute; right: 26px; bottom: 53px; left: 26px; z-index: 3; margin: 0; padding: 4px 0 6px; background: linear-gradient(180deg, rgba(255,255,255,.72), #fff 35%); }
 .prompt-game-sheet .prompt-actions .purple { min-width: 104px; height: 38px; padding: 0 16px; border-radius: 19px; }
 .game-sheet > .end-game { position: absolute; right: 0; bottom: 18px; left: 0; z-index: 4; margin: 0 auto; }
 .ended-game-sheet > .wide-purple { position: absolute; right: 26px; bottom: 23px; left: 26px; width: auto; }
