@@ -280,7 +280,7 @@ function handoffSheet(role, close, sheetActions) {
       : `<span class="handoff-reaction-hint">等待对方回应（可选）</span>`;
   const effectKind = state.reactionEffect?.emoji === '🥚' ? 'egg' : state.reactionEffect?.emoji === '🩴' ? 'slipper' : 'positive';
   const effect = state.reactionEffect?.owner === role
-    ? `<div class="reaction-effect-overlay reaction-effect-${effectKind}" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span><div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
+    ? `<div class="reaction-effect-overlay reaction-effect-${effectKind}" role="status" aria-live="polite"><span class="reaction-effect-spark spark-a">✦</span><span class="reaction-effect-spark spark-b">✧</span><span class="reaction-effect-spark spark-c">✦</span>${effectKind !== 'positive' ? `<span class="reaction-impact">啪！</span><span class="reaction-impact-ring" aria-hidden="true"></span><span class="reaction-effect-debris" aria-hidden="true">✦ · ✧</span>` : ''}<div class="reaction-effect-emoji">${state.reactionEffect.emoji}</div><strong>${name(state.reactionEffect.from)} 送来回应</strong><span>给你一个回应</span></div>`
     : '';
   return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet handoff-game-sheet">${close}${sheetActions}${effect}<div class="game-modal-head"><span class="sheet-kicker">第 ${item.round} 回合</span><strong>${recipientHere ? `${name(item.player)}已完成` : '你已完成'}</strong></div><p class="handoff-state">${recipientHere ? `先看完 ${name(item.player)} 的回答，再轮到你选题` : `等待 ${name(recipient)} 查看你的回答…`}</p><article class="handoff-answer-card"><span class="game-question-meta">${name(item.player)}的${typeName(item.type)}</span><p>${item.prompt}</p>${answerValue(item, role)}<div class="game-reaction-row">${reactionContent}</div></article>${history}${recipientHere ? `<button class="purple handoff-continue" data-action="continue-after-handoff" data-owner="${role}">轮到我了，选题</button>` : '<div class="game-waiting handoff-waiting">等待对方接棒…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
 }
@@ -292,8 +292,12 @@ function gameDock(role) {
 
 function historyToggle(role) {
   if (!state.completedRounds) return '';
-  const label = state.historyOpen[role] ? '收起记录' : `查看记录（${state.completedRounds}）`;
-  return `<button class="sheet-history ${state.historyOpen[role] ? 'is-open' : ''}" data-action="toggle-history" data-owner="${role}" aria-label="${label}">${icon('history')}<b>${state.completedRounds}</b></button>`;
+  const label = state.historyOpen[role] ? '收起记录' : '查看记录';
+  return `<button class="sheet-history ${state.historyOpen[role] ? 'is-open' : ''}" data-action="toggle-history" data-owner="${role}" aria-label="${label}">${icon('history')}</button>`;
+}
+
+function historySheet(role, close, sheetActions) {
+  return `<div class="scrim game-scrim" data-action="close-history" data-owner="${role}"></div><section class="sheet game-sheet history-sheet">${close}${sheetActions}<span class="sheet-kicker">真心话大冒险</span><h2>游戏记录</h2><p>查看已完成的回合与双方回应</p>${gameHistory(role)}</section>`;
 }
 
 function gameFloating(role) {
@@ -330,6 +334,7 @@ function gameSheet(role) {
   const close = `<button class="sheet-close" data-action="exit-game" data-owner="${role}" aria-label="退出游戏">${icon('close')}</button>`;
   const minimize = `<button class="sheet-minimize" data-action="minimize-game-sheet" data-owner="${role}" aria-label="最小化游戏">${icon('minimize')}</button>`;
   const sheetActions = `<div class="game-sheet-actions">${state.completedRounds ? historyToggle(role) : ''}${minimize}</div>`;
+  if (state.historyOpen[role]) return historySheet(role, `<button class="sheet-close" data-action="close-history" data-owner="${role}" aria-label="关闭记录">${icon('close')}</button>`, '');
   if (state.gameSheet === 'invite') {
     const recipient = role === 'them';
     if (state.game === 'declined') return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>暂不开始</h2><p>${name('them')}暂时没有加入这局游戏</p><div class="invite-preview">${avatar('me')}<span>×</span>${avatar('them')}</div><button class="end-game" data-action="exit-game" data-owner="${role}">退出游戏</button></section>`;
@@ -509,7 +514,8 @@ app.addEventListener('click', (event) => {
   if (action === 'open-game-sheet' || action === 'restore-game-sheet') { state.gameSheetOpen[owner] = true; state.gameSheetMinimized[owner] = false; }
   if (action === 'minimize-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = true; }
   if (action === 'close-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = false; }
-  if (action === 'toggle-history') { state.historyOpen[owner] = !state.historyOpen[owner]; }
+  if (action === 'toggle-history') { state.historyOpen[owner] = true; }
+  if (action === 'close-history') { state.historyOpen[owner] = false; }
   if (action === 'toggle-photo-picker') { state.photoPickerOpen[owner] = !state.photoPickerOpen[owner]; }
   if (action === 'select-photo') {
     state.photoSelections[owner] = event.target.closest('[data-photo-id]')?.dataset.photoId || null;
