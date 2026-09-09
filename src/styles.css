@@ -74,10 +74,15 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .lobby-state small { color: #aaa3b0; font-size: 10px; }
 .game-modal-head { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
 .game-modal-head strong { font-size: 21px; line-height: 28px; }
+.choice-game-sheet { display: flex; flex-direction: column; padding-bottom: 48px; overflow: hidden; }
+.choice-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.choice-scroll::-webkit-scrollbar { display: none; }
 .choice-game-sheet .game-players { margin: 15px 0 5px; transform: scale(.78); transform-origin: top center; height: 69px; }
 .choice-game-sheet > p { max-width: 250px; margin: 0 auto 16px; line-height: 19px; }
 .choice-game-sheet .choice-grid { margin-top: 7px; }
-.prompt-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding: 41px 20px 48px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); overflow-y: auto; }
+.prompt-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding: 41px 20px 48px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); overflow: hidden; }
+.prompt-scroll { min-height: 0; display: flex; flex: 1 1 auto; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.prompt-scroll::-webkit-scrollbar { display: none; }
 .prompt-head { gap: 3px; margin-bottom: 12px; }
 .prompt-head .sheet-kicker { margin-bottom: 1px; color: #8062e8; font-size: 12px; letter-spacing: .02em; }
 .prompt-head strong { color: #302a42; font-size: 18px; line-height: 24px; }
@@ -155,7 +160,9 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .history-scroll::-webkit-scrollbar { display: none; }
 .history-sheet .game-history { max-height: none; overflow: visible; margin-top: 0; padding-bottom: 8px; }
 .handoff-game-sheet .sheet-close, .handoff-game-sheet .game-sheet-actions { z-index: 7; }
-.ended-game-sheet { height: 480px; min-height: 480px; }
+.ended-game-sheet { height: 480px; min-height: 480px; display: flex; flex-direction: column; padding-bottom: 70px; overflow: hidden; }
+.ended-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.ended-scroll::-webkit-scrollbar { display: none; }
 .ended-sync-note { color: #7657dd !important; font-weight: 600; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
 .ended-game-sheet .game-player .avatar { width: 42px; height: 42px; font-size: 15px; }
