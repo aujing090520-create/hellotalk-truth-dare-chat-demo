@@ -161,7 +161,7 @@ function answerComposer(role) {
   if (responseType === 'emoji_3') return emojiComposer(role);
   if (responseType === 'photo') return photoComposer(role);
   if (responseType === 'voice') return `<button class="voice-task-start" data-action="start-voice" data-owner="${role}">${icon('mic')}<span>录制短语音</span></button>`;
-  const placeholder = state.type === 'truth' ? '回答这个问题…' : '完成挑战后输入回答…';
+  const placeholder = state.type === 'truth' ? '说说你的答案…' : '把你的回应写在这里…';
   return `<div class="answer-box"><input data-answer-owner="${role}" value="${state.answerDrafts[role]}" placeholder="${placeholder}" /></div>`;
 }
 
@@ -354,8 +354,11 @@ function gameSheet(role) {
   if (state.gameSheet === 'prompt') {
     const prompt = currentPrompt();
     const activeHere = state.currentChallenge?.player === role;
+    const challengePlayer = name(state.currentChallenge.player);
+    const turnTitle = activeHere ? `到你啦，${challengePlayer}` : `等 ${challengePlayer} 完成`;
+    const turnHint = activeHere ? '这一题交给你' : '对方答完，下一题到你';
     const history = state.historyOpen[role] ? gameHistory(role) : '';
-    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${activeHere ? `轮到 ${name(state.currentChallenge.player)} 完成` : `等待 ${name(state.currentChallenge.player)} 完成`}</strong></div><div class="game-question-meta">${name(state.currentChallenge.player)}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `完成后自动交给 ${name(other(role))}` : `完成后回合交给你`}</p>${promptAnswerArea(role)}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    return `<div class="scrim game-scrim" data-action="close-game-sheet" data-owner="${role}"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<div class="game-modal-head prompt-head"><span class="sheet-kicker">第 ${state.turn} 回合</span><strong>${turnTitle}</strong><small>${turnHint}</small></div><article class="prompt-question-card"><div class="game-question-meta">${challengePlayer}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `答完就交给 ${name(other(role))}` : '答完就轮到你'}</p></article>${promptAnswerArea(role)}${history}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'ended') {
     const endedNote = state.exitBy && state.exitBy !== role
