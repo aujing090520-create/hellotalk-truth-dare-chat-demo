@@ -43,7 +43,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-scrim { background: rgba(26, 21, 42, .56); }
 .game-sheet { height: 480px; min-height: 480px; max-height: calc(100% - 12px); padding: 40px 26px 24px; text-align: center; overflow-y: auto; }
 .game-sheet-actions { position: absolute; top: 15px; right: 14px; z-index: 2; display: flex; align-items: center; gap: 8px; }
-.game-sheet-topline { position: absolute; top: 18px; left: 50%; z-index: 1; transform: translateX(-50%); color: #8870dc; font-size: 11px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+.game-sheet-topline { position: absolute; top: 17px; left: 50%; z-index: 1; transform: translateX(-50%); color: #8062e8; font-size: 14px; line-height: 20px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; }
 .sheet-history { position: relative; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: #9b95a3; background: #f7f5fb; }
 .sheet-history .icon { width: 17px; height: 17px; stroke-width: 1.8; }
 .sheet-history b { position: absolute; top: -4px; right: -4px; min-width: 14px; height: 14px; padding: 0 3px; border: 2px solid #fff; border-radius: 7px; color: #fff; background: #8b6cf1; font-size: 8px; line-height: 10px; }
