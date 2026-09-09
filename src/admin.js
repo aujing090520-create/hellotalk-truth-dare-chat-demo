@@ -14,7 +14,7 @@ const state = {
 };
 
 const typeName = (type) => type === 'truth' ? '真心话' : '大冒险';
-const responseName = (type) => ({ text: '文字输入', voice: '短语音', emoji_3: '选 3 个表情' })[type];
+const responseName = (type) => ({ text: '文字输入', voice: '短语音', emoji_3: '选 3 个表情', photo: '系统相册·单张照片' })[type] || '—';
 const now = () => '2026-08-31 14:28';
 const escapeHtml = (text = '') => String(text).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
 
@@ -35,7 +35,7 @@ function editorTemplate() {
   const isTruth = item.type === 'truth';
   const responseField = isTruth
     ? `<div class="form-field fixed-component"><span>回答组件</span><div class="fixed-value"><b>文字输入</b><small>真心话固定使用文字输入</small></div></div>`
-    : `<label class="form-field"><span>回答组件 <i>*</i></span><select data-field="responseType"><option value="text" ${item.responseType === 'text' ? 'selected' : ''}>文字输入</option><option value="voice" ${item.responseType === 'voice' ? 'selected' : ''}>短语音（最多 60 秒）</option><option value="emoji_3" ${item.responseType === 'emoji_3' ? 'selected' : ''}>选 3 个表情</option></select></label>`;
+    : `<label class="form-field"><span>回答组件 <i>*</i></span><select data-field="responseType"><option value="text" ${item.responseType === 'text' ? 'selected' : ''}>文字输入</option><option value="voice" ${item.responseType === 'voice' ? 'selected' : ''}>短语音（最多 60 秒）</option><option value="emoji_3" ${item.responseType === 'emoji_3' ? 'selected' : ''}>选 3 个表情</option><option value="photo" ${item.responseType === 'photo' ? 'selected' : ''}>系统相册·单张照片</option></select></label>`;
   return `<div class="admin-mask" data-action="close-editor"></div>
     <section class="editor-modal" role="dialog" aria-modal="true" aria-label="${item._new ? '新增题目' : '编辑题目'}">
       <header><strong>${item._new ? '新增题目' : '编辑题目'}</strong><button class="modal-close" data-action="close-editor" aria-label="关闭">×</button></header>
@@ -67,11 +67,11 @@ function render() {
         <section class="filter-card">
           <label>题目 ID / 内容<input data-filter="keyword" value="${escapeHtml(state.keyword)}" placeholder="请输入" /></label>
           <label>题目类型<select data-filter="type"><option value="all">全部</option><option value="truth" ${state.type === 'truth' ? 'selected' : ''}>真心话</option><option value="dare" ${state.type === 'dare' ? 'selected' : ''}>大冒险</option></select></label>
-          <label>回答组件<select data-filter="responseType"><option value="all">全部</option><option value="text" ${state.responseType === 'text' ? 'selected' : ''}>文字输入</option><option value="voice" ${state.responseType === 'voice' ? 'selected' : ''}>短语音</option><option value="emoji_3" ${state.responseType === 'emoji_3' ? 'selected' : ''}>选 3 个表情</option></select></label>
+          <label>回答组件<select data-filter="responseType"><option value="all">全部</option><option value="text" ${state.responseType === 'text' ? 'selected' : ''}>文字输入</option><option value="voice" ${state.responseType === 'voice' ? 'selected' : ''}>短语音</option><option value="emoji_3" ${state.responseType === 'emoji_3' ? 'selected' : ''}>选 3 个表情</option><option value="photo" ${state.responseType === 'photo' ? 'selected' : ''}>系统相册·单张照片</option></select></label>
           <label>启用状态<select data-filter="status"><option value="all">全部</option><option value="true" ${state.status === 'true' ? 'selected' : ''}>已启用</option><option value="false" ${state.status === 'false' ? 'selected' : ''}>已停用</option></select></label>
           <div class="filter-actions"><small>筛选结果实时更新</small><button class="clear-btn" data-action="clear">重置</button></div>
         </section>
-        <p class="list-meta">共 ${state.records.length} 题，已启用 ${enabled} 题 · 真心话仅支持文字输入；大冒险可配置文字、短语音或表情组件</p>
+        <p class="list-meta">共 ${state.records.length} 题，已启用 ${enabled} 题 · 真心话仅支持文字输入；大冒险可配置文字、短语音、表情或系统相册照片组件</p>
         <section class="table-card"><table><thead><tr><th>ID</th><th>题目内容</th><th>类型</th><th>回答组件</th><th>状态</th><th>更新人</th><th>更新时间</th><th>操作</th></tr></thead><tbody>${records.length ? records.map((item) => `<tr><td>${item.id}</td><td class="question-cell"><b>${escapeHtml(item.text)}</b>${item.note ? `<small>${escapeHtml(item.note)}</small>` : ''}</td><td><span class="type-pill ${item.type}">${typeName(item.type)}</span></td><td>${responseName(item.responseType)}</td><td><span class="status-pill ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '停用'}</span></td><td>${item.updatedBy || 'Frank'}</td><td>${item.updatedAt || '—'}</td><td class="row-actions"><button data-action="edit" data-id="${item.id}">编辑</button><button data-action="copy" data-id="${item.id}">复制</button><button data-action="toggle" data-id="${item.id}">${item.enabled ? '停用' : '启用'}</button><button class="danger" data-action="remove" data-id="${item.id}">删除</button></td></tr>`).join('') : '<tr><td colspan="8" class="empty-row">暂无符合条件的题目</td></tr>'}</tbody></table></section>
       </main>
     </section>
