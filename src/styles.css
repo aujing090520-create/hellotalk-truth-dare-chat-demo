@@ -77,7 +77,7 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .choice-game-sheet .game-players { margin: 15px 0 5px; transform: scale(.78); transform-origin: top center; height: 69px; }
 .choice-game-sheet > p { max-width: 250px; margin: 0 auto 16px; line-height: 19px; }
 .choice-game-sheet .choice-grid { margin-top: 7px; }
-.prompt-game-sheet { min-height: 480px; padding: 41px 20px 82px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); }
+.prompt-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding: 41px 20px 70px; background: linear-gradient(180deg, #fff 0%, #fefcff 64%, #fbf9ff 100%); overflow-y: auto; }
 .prompt-head { gap: 3px; margin-bottom: 12px; }
 .prompt-head .sheet-kicker { margin-bottom: 1px; color: #8062e8; font-size: 12px; letter-spacing: .02em; }
 .prompt-head strong { color: #302a42; font-size: 18px; line-height: 24px; }
@@ -111,7 +111,10 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .game-reaction-picker button { width: 33px; height: 33px; display: grid; place-items: center; border: 1px solid #e9e5f2; border-radius: 50%; background: #fff; font-size: 18px; }
 .game-reaction-picker button.reaction-negative { border-color: #f0d9d7; background: #fff8f7; }
 .game-reaction-result { color: #7657dd !important; font-size: 10px !important; }
-.handoff-game-sheet { min-height: 480px; padding-bottom: 82px; }
+.handoff-game-sheet { min-height: 480px; display: flex; flex-direction: column; padding-bottom: 70px; overflow: hidden; }
+.handoff-scroll { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.handoff-scroll::-webkit-scrollbar { display: none; }
+.handoff-footer { flex: 0 0 auto; padding-top: 10px; background: #fff; }
 .handoff-game-sheet .game-modal-head { margin-bottom: 7px; }
 .handoff-state { max-width: 280px; margin: 0 auto 14px; color: #77727d; font-size: 12px; line-height: 19px; }
 .handoff-answer-card { margin: 0; padding: 14px 13px 12px; border: 1px solid #ece8f4; border-radius: 13px; background: #faf9fd; text-align: left; }
@@ -125,8 +128,8 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .handoff-game-sheet .game-reaction-picker > div { justify-content: center; gap: 12px; }
 .handoff-game-sheet .game-reaction-picker button { width: 39px; height: 39px; border-color: #e3dcfa; font-size: 22px; box-shadow: 0 2px 5px rgba(100, 73, 190, .08); }
 .handoff-game-sheet .game-reaction-picker button.reaction-negative { border-color: #f0d9d7; background: #fff8f7; }
-.handoff-continue { position: absolute; right: 26px; bottom: 53px; left: 26px; width: auto; height: 42px; border-radius: 21px; }
-.handoff-waiting { position: absolute; right: 26px; bottom: 57px; left: 26px; margin: 0; text-align: center; }
+.handoff-continue { position: static; width: 100%; height: 42px; margin: 0; border-radius: 21px; }
+.handoff-waiting { position: static; margin: 0; padding: 12px 0 10px; text-align: center; }
 .reaction-effect-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; overflow: hidden; pointer-events: none; background: radial-gradient(circle at center, rgba(255,255,255,.94) 0%, rgba(246,242,255,.9) 48%, rgba(229,219,255,.86) 100%); animation: reaction-effect-in 180ms ease-out both; }
 .reaction-effect-emoji { position: relative; z-index: 2; font-size: 72px; line-height: 1; filter: drop-shadow(0 8px 12px rgba(111, 77, 224, .18)); animation: reaction-effect-pop 760ms cubic-bezier(.2,1.45,.45,1) both; }
 .reaction-effect-slipper, .reaction-effect-egg { background: radial-gradient(circle at center, rgba(255,255,255,.97) 0%, rgba(255,247,243,.92) 48%, rgba(255,231,224,.9) 100%); }
@@ -157,7 +160,8 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .ended-game-sheet .game-players { margin: 8px 0 11px; }
 .ended-game-sheet .game-player .avatar { width: 42px; height: 42px; font-size: 15px; }
 .ended-game-sheet .game-history { max-height: 290px; overflow-y: auto; }
-.prompt-game-sheet .prompt-actions { position: absolute; right: 26px; bottom: 53px; left: 26px; z-index: 3; margin: 0; padding: 4px 0 6px; background: linear-gradient(180deg, rgba(255,255,255,.72), #fff 35%); }
+.prompt-game-sheet #answer-area { flex: 0 0 auto; }
+.prompt-game-sheet .prompt-actions { position: static; z-index: 3; width: 100%; margin: 10px 0 0; padding: 4px 0 6px; background: transparent; }
 .prompt-game-sheet .prompt-actions .purple { min-width: 104px; height: 38px; padding: 0 16px; border-radius: 19px; }
 .game-sheet > .end-game { position: absolute; right: 0; bottom: 18px; left: 0; z-index: 4; margin: 0 auto; }
 .ended-game-sheet > .wide-purple { position: absolute; right: 26px; bottom: 23px; left: 26px; width: auto; }
