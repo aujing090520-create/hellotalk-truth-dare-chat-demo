@@ -89,6 +89,21 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .prompt-head small { color: #9b91ad; font-size: 11px; line-height: 16px; }
 .prompt-game-sheet .game-players { margin-top: 13px; transform: scale(.72); transform-origin: top center; height: 63px; }
 .game-question-meta { display: inline-flex; align-items: center; justify-content: center; min-height: 28px; margin: 0 auto; padding: 4px 12px; border-radius: 14px; color: #7456dd; background: #f2efff; font-size: 12px; font-weight: 700; }
+.review-scenarios { display: grid; gap: 6px; margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.12); }
+.review-scenarios small { color: #aeb9d2; font-size: 11px; }
+.review-scenarios button { padding: 6px 8px; border-radius: 7px; color: #dbe8ff; background: #224e86; text-align: left; font-size: 11px; }
+.demo-toast { position: fixed; z-index: 30; left: 50%; bottom: 18px; transform: translateX(-50%); padding: 10px 16px; border-radius: 18px; color: #fff; background: rgba(31, 31, 38, .92); box-shadow: 0 8px 24px rgba(0,0,0,.2); font-size: 12px; }
+.empty-game-state { display: grid; justify-items: center; gap: 9px; margin: 28px 12px; padding: 24px 16px; border-radius: 16px; background: #f7f4ff; color: #81768d; text-align: center; }
+.empty-game-state strong { color: #40384d; font-size: 14px; }
+.empty-game-state span { font-size: 12px; }
+.empty-game-state button { min-width: 104px; height: 34px; padding: 0 14px; border-radius: 17px; color: #fff; background: #7047f5; font-size: 12px; font-weight: 700; }
+.inline-game-notice { margin: 0 0 10px; padding: 8px 12px; border-radius: 10px; color: #7d5cba; background: #f4efff; text-align: center; font-size: 12px; }
+.answer-error { display: grid; gap: 7px; padding: 14px; border-radius: 14px; background: #fff6f5; color: #817783; text-align: left; }
+.answer-error strong { color: #b45c5c; font-size: 13px; }
+.answer-error span { font-size: 11px; line-height: 17px; }
+.answer-error > div { display: flex; gap: 8px; margin-top: 3px; }
+.answer-error button { flex: 1; height: 34px; border-radius: 17px; color: #7c6f88; background: #fff; border: 1px solid #eadfe8; font-size: 11px; }
+.answer-error button.purple { color: #fff; background: #7047f5; border-color: #7047f5; }
 .prompt-question-card { position: relative; margin: 0 auto 12px; padding: 14px 14px 13px; border: 1px solid #eee8fb; border-radius: 18px; background: linear-gradient(145deg, #fcfbff, #f7f2ff); box-shadow: 0 7px 18px rgba(116, 86, 221, .08); }
 .prompt-question-card::before { content: '✦'; position: absolute; top: 10px; right: 14px; color: #d5c9fa; font-size: 15px; }
 .prompt-question-card .game-question-meta { min-height: 24px; padding: 3px 10px; font-size: 11px; }

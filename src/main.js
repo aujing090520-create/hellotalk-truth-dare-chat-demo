@@ -59,6 +59,9 @@ const state = {
   exitBy: null,
   review: false,
   selectedRule: null,
+  notice: '',
+  inviteExpired: false,
+  errorMode: null,
   messages: [
     { kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' },
     { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' },
@@ -204,6 +207,9 @@ function promptAnswerArea(role) {
   }
   const recording = state.voice?.status === 'recording' || state.voice?.status === 'paused';
   const responseType = challenge.responseType;
+  if (state.errorMode === 'voice-error' && responseType === 'voice') {
+    return `<div id="answer-area" data-answer-area-role="${role}" class="answer-error"><strong>语音发送失败</strong><span>录音没有发送成功，当前题目和回合已保留。</span><div><button data-action="retry-recording" data-owner="${role}">重新录音</button><button class="purple" data-action="retry-send" data-owner="${role}">重试发送</button></div></div>`;
+  }
   const ready = responseType === 'emoji_3' ? state.emojiSelections[role].length === 3 : responseType === 'photo' ? Boolean(state.photoSelections[role]) : state.answerDrafts[role].trim();
   const actions = recording ? '' : responseType === 'voice'
     ? `<div class="prompt-actions" id="target-actions"><button data-action="decline-prompt">不想回答</button></div>`
@@ -343,13 +349,17 @@ function gameSheet(role) {
   if (state.historyOpen[role]) return historySheet(role, `<button class="sheet-close history-back" data-action="close-history" data-owner="${role}" aria-label="返回游戏">${icon('back')}</button>`, '');
   if (state.gameSheet === 'invite') {
     const recipient = role === 'them';
+    if (state.inviteExpired) return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>邀请已失效</h2><p>这份邀请已过期，无法继续加入</p><div class="invite-preview">${avatar('me')}<span>×</span>${avatar('them')}</div><button class="end-game" data-action="exit-game" data-owner="${role}">退出游戏</button></section>`;
     if (state.game === 'declined') return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>暂不开始</h2><p>${name('them')}暂时没有加入这局游戏</p><div class="invite-preview">${avatar('me')}<span>×</span>${avatar('them')}</div><button class="end-game" data-action="exit-game" data-owner="${role}">退出游戏</button></section>`;
     return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet invite-game-sheet">${close}${sheetActions}<div class="game-modal-icon">真</div><span class="sheet-kicker">真心话大冒险</span><h2>${recipient ? '邀请你一起玩' : '已发出邀请'}</h2><p>${recipient ? `${name('me')} 邀请你一起玩` : `等待 ${name('them')} 进入游戏…`}</p><div class="invite-preview">${avatar('me')}<span>×</span>${recipient ? '<span class="avatar placeholder">?</span>' : avatar('them')}</div><small class="game-modal-note">进入后直接开始第一回合。</small>${recipient ? `<div class="game-modal-actions"><button class="ghost" data-action="decline" data-owner="${role}">暂不玩</button><button class="purple" data-action="accept" data-owner="${role}">进入游戏</button></div>` : '<div class="game-waiting">等待对方进入游戏…</div>'}<button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'choice') {
     const activeHere = state.active === role;
     const history = state.historyOpen[role] ? gameHistory(role) : '';
-    return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<span class="game-sheet-topline">第 ${state.turn} 回合</span><div class="choice-scroll"><div class="game-modal-head"><strong>${activeHere ? `轮到 ${name(state.active)} 选择` : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${activeHere ? `<p>选一个，看看会抽到什么</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`}${history}</div><button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    const choiceBody = state.errorMode === 'no-prompt'
+      ? `<div class="empty-game-state"><strong>暂时没有可用题目，请稍后再试</strong><span>可以重新抽题，或稍后再试。</span><button class="purple" data-action="retry-draw" data-owner="${role}">重新抽题</button></div>`
+      : activeHere ? `<p>选一个，看看会抽到什么</p><div class="choice-grid" id="target-choice"><button class="truth-choice" data-action="pick-truth" data-owner="${role}"><b>真</b><span><strong>真心话</strong><small>说说真实的你</small></span></button><button class="dare-choice" data-action="pick-dare" data-owner="${role}"><b>冒</b><span><strong>大冒险</strong><small>完成一个小挑战</small></span></button></div>` : `<div class="game-waiting large">${name(state.active)}正在选择真心话或大冒险…</div>`;
+    return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet choice-game-sheet">${close}${sheetActions}<span class="game-sheet-topline">第 ${state.turn} 回合</span><div class="choice-scroll"><div class="game-modal-head"><strong>${activeHere ? `轮到 ${name(state.active)} 选择` : `等待 ${name(state.active)} 选择`}</strong></div>${gamePlayers()}${choiceBody}${history}</div><button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'handoff') return handoffSheet(role, close, sheetActions);
   if (state.gameSheet === 'prompt') {
@@ -359,7 +369,8 @@ function gameSheet(role) {
     const turnTitle = activeHere ? `到你啦，${challengePlayer}` : `等 ${challengePlayer} 完成`;
     const turnHint = activeHere ? '这一题交给你' : '对方答完，下一题到你';
     const history = state.historyOpen[role] ? gameHistory(role) : '';
-    return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<span class="game-sheet-topline">第 ${state.turn} 回合</span><div class="prompt-scroll"><div class="game-modal-head prompt-head"><strong>${turnTitle}</strong><small>${turnHint}</small></div><article class="prompt-question-card"><div class="game-question-meta">${challengePlayer}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `答完就交给 ${name(other(role))}` : '答完就轮到你'}</p></article>${promptAnswerArea(role)}${history}</div><button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
+    const stale = state.errorMode === 'stale-round' ? `<div class="inline-game-notice" role="status">本回合已结束</div>` : '';
+    return `<div class="scrim game-scrim" aria-hidden="true"></div><section class="sheet game-sheet prompt-game-sheet">${close}${sheetActions}<span class="game-sheet-topline">第 ${state.turn} 回合</span><div class="prompt-scroll">${stale}<div class="game-modal-head prompt-head"><strong>${turnTitle}</strong><small>${turnHint}</small></div><article class="prompt-question-card"><div class="game-question-meta">${challengePlayer}的${typeName(state.type)}</div><h2>${prompt}</h2><p>${activeHere ? `答完就交给 ${name(other(role))}` : '答完就轮到你'}</p></article>${promptAnswerArea(role)}${history}</div><button class="end-game" data-action="end-game" data-owner="${role}">结束本局</button></section>`;
   }
   if (state.gameSheet === 'ended') {
     const endedNote = state.exitBy && state.exitBy !== role
@@ -391,11 +402,11 @@ function phone(role) {
 function review() {
   if (!state.review) return '';
   const rules = Object.keys(ruleMap).map((rule) => `<button class="rule ${state.selectedRule === rule ? 'selected' : ''}" data-rule="${rule}">${rule}<small>${({ 'FR-001/1': '游戏入口', 'FR-002/2': '邀请同步', 'FR-003/1': '回合交替', 'FR-003/2': '选择题型', 'FR-003/4': '不想回答' })[rule]}</small></button>`).join('');
-  return `<aside class="review-panel"><strong>PRD 追溯</strong>${rules}</aside>`;
+  return `<aside class="review-panel"><strong>PRD 追溯</strong>${rules}<div class="review-scenarios"><small>异常态演示</small><button data-action="simulate-error" data-error="duplicate">重复发起</button><button data-action="simulate-error" data-error="expired">邀请失效</button><button data-action="simulate-error" data-error="empty">无可用题目</button><button data-action="simulate-error" data-error="voice">语音失败</button><button data-action="simulate-error" data-error="stale">旧回合</button></div></aside>`;
 }
 
 function render() {
-  app.innerHTML = `<main class="demo"><header class="demo-header"><div><b>真心话大冒险</b><span>双角色同步预览</span></div><p>林凡视角与 L10 视角共享同一局状态</p><label><input type="checkbox" data-action="toggle-review" ${state.review ? 'checked' : ''}/> Review traceability</label><button class="reset" data-action="reset">重置</button></header><section class="role-labels"><span>发起人 · 林凡</span><i>双方状态实时同步</i><span>受邀人 · L10</span></section><section class="phones">${phone('me')}${phone('them')}</section>${review()}</main>`;
+  app.innerHTML = `<main class="demo"><header class="demo-header"><div><b>真心话大冒险</b><span>双角色同步预览</span></div><p>林凡视角与 L10 视角共享同一局状态</p><label><input type="checkbox" data-action="toggle-review" ${state.review ? 'checked' : ''}/> Review traceability</label><button class="reset" data-action="reset">重置</button></header><section class="role-labels"><span>发起人 · 林凡</span><i>双方状态实时同步</i><span>受邀人 · L10</span></section><section class="phones">${phone('me')}${phone('them')}</section>${review()}${state.notice ? `<div class="demo-toast" role="status">${state.notice}</div>` : ''}</main>`;
   document.querySelectorAll('.messages').forEach((list) => { list.scrollTop = list.scrollHeight; });
   if (state.review) {
     Object.entries(ruleMap).forEach(([rule, id]) => {
@@ -419,6 +430,9 @@ function startGame() {
   state.voicePlayback = { me: false, them: false };
   state.roundHistory = [];
   state.usedPromptIds = { truth: [], dare: [] };
+  state.notice = '';
+  state.inviteExpired = false;
+  state.errorMode = null;
   state.ready = { me: true, them: true };
   state.gameSheet = 'choice';
   state.gameSheetOpen = { me: true, them: true };
@@ -450,6 +464,7 @@ function complete(answer, declined = false) {
   state.gameSheetOpen = { me: true, them: true };
   state.gameSheetMinimized = { me: false, them: false };
   state.historyOpen = { me: false, them: false };
+  state.errorMode = null;
 }
 
 function exitGame(role = null) {
@@ -479,7 +494,7 @@ function reset() {
   clearTimeout(voicePlaybackTimer);
   voicePlaybackTimer = null;
   resetFloatOffsets();
-  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, voicePlayback: { me: false, them: false }, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, inviter: null, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, historyOpen: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, photoSelections: { me: null, them: null }, photoPickerOpen: { me: false, them: false }, toolsOwner: 'me', sheet: null, selectedRule: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
+  Object.assign(state, { game: 'idle', active: null, type: null, usedPromptIds: { truth: [], dare: [] }, turn: 0, completedRounds: 0, currentChallenge: null, reactionEffect: null, voicePlayback: { me: false, them: false }, roundHistory: [], entered: { me: false, them: false }, ready: { me: false, them: false }, inviter: null, exitBy: null, gameSheet: null, gameSheetOpen: { me: false, them: false }, gameSheetMinimized: { me: false, them: false }, historyOpen: { me: false, them: false }, drafts: { me: '', them: '' }, answerDrafts: { me: '', them: '' }, emojiSelections: { me: [], them: [] }, photoSelections: { me: null, them: null }, photoPickerOpen: { me: false, them: false }, toolsOwner: 'me', sheet: null, selectedRule: null, notice: '', inviteExpired: false, errorMode: null, messages: [{ kind: 'text', sender: 'them', text: 'Hi! I just finished my work. How was your day?' }, { kind: 'text', sender: 'me', text: 'Pretty good! I was thinking about the weekend.' }] });
 }
 
 function drawPrompt(type) {
@@ -510,9 +525,12 @@ app.addEventListener('click', (event) => {
   if (action === 'close-sheet') state.sheet = null;
   if (action === 'send-invite') {
     const inviter = owner || 'me';
+    if (state.game !== 'idle' && state.game !== 'ended') { state.notice = '已有正在进行的游戏，无法重复发起'; render(); return; }
     state.sheet = null;
     state.messages.push({ kind: 'game-invite', sender: inviter });
     state.game = 'invited';
+    state.inviteExpired = false;
+    state.errorMode = null;
     state.inviter = inviter;
     state.exitBy = null;
     state.entered = { me: true, them: false };
@@ -523,6 +541,17 @@ app.addEventListener('click', (event) => {
   }
   if (action === 'accept') { state.entered = { me: true, them: true }; startGame(); }
   if (action === 'decline') { state.game = 'declined'; state.gameSheet = 'invite'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+  if (action === 'retry-draw') { state.errorMode = null; state.notice = ''; }
+  if (action === 'retry-recording') { state.errorMode = null; state.voice = null; updatePromptAnswerArea(); return; }
+  if (action === 'retry-send') { state.errorMode = null; complete('语音已发送'); }
+  if (action === 'simulate-error') {
+    const error = event.target.closest('[data-error]')?.dataset.error;
+    state.notice = '';
+    if (error === 'duplicate') { state.notice = '已有正在进行的游戏，无法重复发起'; }
+    if (error === 'expired') { state.game = 'invited'; state.inviteExpired = true; state.gameSheet = 'invite'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+    if (error === 'empty') { state.game = 'playing'; state.inviteExpired = false; state.errorMode = 'no-prompt'; state.active = 'me'; state.turn = 1; state.type = null; state.currentChallenge = null; state.gameSheet = 'choice'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+    if (error === 'voice' || error === 'stale') { state.game = 'playing'; state.inviteExpired = false; state.active = 'me'; state.turn = 1; state.type = 'dare'; state.currentChallenge = { player: 'me', type: 'dare', id: 'dare_voice_01', responseType: 'voice', text: '你发一条语音，用电台主持人的口吻打个招呼。' }; state.errorMode = error === 'voice' ? 'voice-error' : 'stale-round'; state.gameSheet = 'prompt'; state.gameSheetOpen = { me: true, them: true }; state.gameSheetMinimized = { me: false, them: false }; }
+  }
   if (action === 'open-game-sheet' || action === 'restore-game-sheet') { state.gameSheetOpen[owner] = true; state.gameSheetMinimized[owner] = false; }
   if (action === 'minimize-game-sheet') { state.gameSheetOpen[owner] = false; state.gameSheetMinimized[owner] = true; }
   if (action === 'toggle-history') { state.historyOpen[owner] = true; }
